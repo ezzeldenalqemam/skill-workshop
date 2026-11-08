@@ -1,0 +1,188 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+}
+
+.l-header {
+  @include chrome;
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__mark {
+    --icon-size: #{px(18)};
+
+    display: grid;
+    place-items: center;
+    inline-size: #{px(32)};
+    block-size: #{px(32)};
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+
+  &__title {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &__project {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1 1 #{px(200)};
+    min-inline-size: 0;
+    max-inline-size: #{px(440)};
+  }
+
+  &__select {
+    flex: 1;
+    min-inline-size: 0;
+    min-block-size: #{px(34)};
+    border-color: var(--line);
+    background: var(--surface);
+    font-size: var(--fs-sm);
+    cursor: pointer;
+  }
+
+  &__save {
+    --icon-size: #{px(16)};
+
+    display: grid;
+    place-items: center;
+    inline-size: #{px(28)};
+    color: var(--text-faint);
+
+    &.is-error {
+      color: var(--danger);
+    }
+  }
+
+  &__confirm {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+  }
+
+  &__tools {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+  }
+
+  &__dot {
+    inline-size: #{px(8)};
+    block-size: #{px(8)};
+    border-radius: 50%;
+    background: var(--text-faint);
+
+    [data-state='ready'] > & {
+      background: var(--success);
+    }
+
+    [data-state='denied'] > & {
+      background: var(--danger);
+    }
+
+    [data-state='unavailable'] > & {
+      background: var(--warning);
+    }
+  }
+
+  &__open {
+    cursor: pointer;
+
+    &:has(:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__lang {
+    font-weight: 600;
+  }
+
+  &__install {
+    position: relative;
+  }
+
+  // Something is left before Claude has this exact version.
+  &__pending {
+    position: absolute;
+    inset-block-start: #{px(-3)};
+    inset-inline-end: #{px(-3)};
+    inline-size: #{px(10)};
+    block-size: #{px(10)};
+    border: 2px solid var(--surface);
+    border-radius: 50%;
+    background: var(--warning);
+  }
+
+  &__note {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+
+  // Inside the claude.ai viewer the page is often narrower than a full window, so the bar keeps
+  // to one row: labels collapse to icons (still named for assistive tech) before anything wraps.
+  @include mq(max, w, xl) {
+    &__status-text {
+      display: none;
+    }
+  }
+
+  @include mq(max, w, lg) {
+    &__label {
+      @include visually-hidden;
+    }
+  }
+
+  // Below sm the bar wraps anyway, so the name has room again.
+  @include mq(max, w, md) {
+    @include mq(min, w, sm) {
+      &__title {
+        @include visually-hidden;
+      }
+    }
+  }
+
+  @include mq(max, w, sm) {
+    flex-wrap: wrap;
+
+    &__tools {
+      flex-wrap: wrap;
+    }
+
+    &__project {
+      order: 3;
+      flex-basis: 100%;
+      max-inline-size: none;
+    }
+  }
+}

@@ -1,0 +1,103 @@
+<dialog
+  #dialog
+  class="c-install"
+  aria-labelledby="install-title"
+  aria-describedby="install-state"
+  (cancel)="onCancelEvent($event)"
+  (click)="onClick($event)"
+>
+  <div class="c-install__panel">
+    <div class="c-install__head">
+      <h2 class="c-install__title" id="install-title">{{ 'install.title' | t }}</h2>
+      <button #closeButton type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'common.close' | t" (click)="close()">
+        <app-icon name="close" />
+      </button>
+    </div>
+
+    <p class="c-install__state" id="install-state" [attr.data-state]="state()">
+      <span class="c-install__dot" aria-hidden="true"></span>
+      {{ stateLabel() | t }}
+    </p>
+
+    @if (state() !== 'empty') {
+      <ol class="c-install__steps">
+        @if (persistence.libraryAvailable()) {
+          <li class="c-install__step" [class.is-done]="!needsSave()">
+            <div class="c-install__step-text">
+              <strong>{{ 'install.saveStep' | t }}</strong>
+              <span class="c-install__why">{{ 'install.saveWhy' | t }}</span>
+            </div>
+            @if (needsSave()) {
+              <button type="button" class="c-button is-sm" [attr.aria-disabled]="busy() ? 'true' : null" (click)="save()">
+                <app-icon name="save" />
+                {{ 'header.save' | t }}
+              </button>
+            } @else {
+              <span class="c-install__done"><app-icon name="check" />{{ 'install.saved' | t }}</span>
+            }
+          </li>
+        }
+
+        <li class="c-install__step">
+          <div class="c-install__step-text">
+            <strong>{{ 'install.downloadStep' | t }}</strong>
+            <span class="c-install__why">{{ 'install.downloadWhy' | t: { name: folder() } }}</span>
+          </div>
+          <button type="button" class="c-button is-sm is-primary" [attr.aria-disabled]="busy() ? 'true' : null" (click)="download()">
+            <app-icon name="download" />
+            {{ 'header.download' | t }}
+          </button>
+        </li>
+
+        <li class="c-install__step is-wide">
+          <div class="c-install__step-text">
+            <strong>{{ 'install.whereStep' | t }}</strong>
+          </div>
+          <div class="c-install__targets">
+            <section class="c-install__target" aria-labelledby="install-claude-ai">
+              <h3 class="c-install__target-title" id="install-claude-ai">claude.ai</h3>
+              <p>{{ 'install.claudeAi' | t }}</p>
+              <a class="c-install__link" href="https://claude.ai/settings/capabilities" target="_blank" rel="noopener">
+                {{ 'install.openSettings' | t }}
+                <app-icon name="link" />
+              </a>
+            </section>
+            <section class="c-install__target" aria-labelledby="install-claude-code">
+              <h3 class="c-install__target-title" id="install-claude-code">Claude Code</h3>
+              <p>{{ 'install.claudeCode' | t }}</p>
+              <div class="c-install__path">
+                <label class="u-visually-hidden" for="install-path">{{ 'install.pathLabel' | t }}</label>
+                <input #pathField class="c-field__control c-install__path-field" id="install-path" type="text" dir="ltr" readonly [value]="codePath()" />
+                <button type="button" class="c-button is-sm" (click)="copyPath(pathField)">
+                  <app-icon [name]="copied() ? 'check' : 'code'" />
+                  {{ (copied() ? 'install.copied' : 'install.copy') | t }}
+                </button>
+              </div>
+            </section>
+          </div>
+        </li>
+
+        @if (persistence.libraryAvailable()) {
+          <li class="c-install__step" [class.is-done]="state() === 'installed'">
+            <div class="c-install__step-text">
+              <strong>{{ 'install.markStep' | t }}</strong>
+              <span class="c-install__why">{{ 'install.markWhy' | t }}</span>
+            </div>
+            @if (canMark()) {
+              <button type="button" class="c-button is-sm" [attr.aria-disabled]="busy() ? 'true' : null" (click)="markInstalled()">
+                <app-icon name="check" />
+                {{ 'install.mark' | t }}
+              </button>
+            } @else if (state() === 'installed') {
+              <span class="c-install__done"><app-icon name="check" />{{ 'sync.installed' | t }}</span>
+            }
+          </li>
+        }
+      </ol>
+    }
+
+    @if (note()) {
+      <p class="c-install__note" role="status">{{ note() }}</p>
+    }
+  </div>
+</dialog>

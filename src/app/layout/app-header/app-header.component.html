@@ -1,0 +1,109 @@
+<header class="l-header">
+  <!-- Brand -->
+  <div class="l-header__brand">
+    <span class="l-header__mark" aria-hidden="true">
+      <app-icon name="wand" />
+    </span>
+    <h1 class="l-header__title">{{ 'header.title' | t }}</h1>
+  </div>
+
+  <!-- Project -->
+  <div class="l-header__project">
+    <label class="u-visually-hidden" for="project-select">{{ 'header.project' | t }}</label>
+    <select class="c-field__control l-header__select" id="project-select" (change)="onProjectChange($event)">
+      <optgroup [label]="'header.myProjects' | t">
+        @for (p of options(); track p.id) {
+          <option [value]="p.id" [selected]="p.id === store.project().id">{{ p.name }} · {{ kindLabels[p.kind] }}</option>
+        }
+      </optgroup>
+      @if (store.library().length) {
+        <optgroup [label]="'header.mySkills' | t">
+          @for (entry of store.library(); track entry.id) {
+            <option [value]="'lib:' + entry.id">{{ entry.name }} · {{ originLabels[entry.origin] | t }}</option>
+          }
+        </optgroup>
+      }
+    </select>
+    <span
+      class="l-header__save"
+      [class.is-error]="store.saveState() === 'error'"
+      [attr.title]="saveLabel()"
+    >
+      <app-icon [name]="persistence.mode() === 'account' ? 'cloud' : 'laptop'" />
+      <span class="u-visually-hidden">{{ saveLabel() }}</span>
+    </span>
+    @if (!store.project().isDraft) {
+      @if (confirmingDelete()) {
+        <span class="l-header__confirm" role="group" aria-labelledby="header-delete-ask">
+          <span id="header-delete-ask">{{ 'header.deleteAsk' | t }}</span>
+          <button type="button" class="c-button is-sm is-danger" (click)="deleteProject()">{{ 'common.delete' | t }}</button>
+          <button #cancelDelete type="button" class="c-button is-sm is-quiet" (click)="cancelDeleteProject()">{{ 'common.cancel' | t }}</button>
+        </span>
+      } @else {
+        <button
+          #deleteButton
+          type="button"
+          class="c-button is-icon is-quiet is-danger"
+          [attr.aria-label]="'header.delete' | t"
+          [title]="'header.delete' | t"
+          (click)="askDelete()"
+        >
+          <app-icon name="trash" />
+        </button>
+      }
+    }
+  </div>
+
+  <!-- Tools -->
+  <div class="l-header__tools">
+    <span class="l-header__status" [attr.data-state]="agent.availability()" [attr.title]="claudeLabel() | t">
+      <span class="l-header__dot" aria-hidden="true"></span>
+      <span class="l-header__status-text">{{ claudeLabel() | t }}</span>
+    </span>
+
+    <label class="c-button is-quiet l-header__open" [title]="'header.openHint' | t">
+      <input class="u-visually-hidden" type="file" multiple accept=".zip,.md,.json,.txt,.js,.ts,.py,.sh,.yml,.yaml" (change)="onOpen($event)" />
+      <app-icon name="upload" />
+      <span class="l-header__label">{{ 'header.open' | t }}</span>
+    </label>
+
+    <app-appearance-menu (resetRequested)="resetDialog.open()" />
+    <app-accessibility-panel />
+
+    @if (persistence.libraryAvailable()) {
+      <button type="button" class="c-button is-quiet" [title]="'header.saveHint' | t" [attr.aria-disabled]="savingSkill() ? 'true' : null" (click)="saveSkill()">
+        <app-icon name="save" />
+        <span class="l-header__label">{{ 'header.save' | t }}</span>
+      </button>
+    }
+
+    <button
+      type="button"
+      class="c-button is-primary l-header__install"
+      aria-haspopup="dialog"
+      [title]="syncLabel() | t"
+      (click)="installDialog.open()"
+    >
+      <app-icon name="download" />
+      <span class="l-header__label">{{ 'header.install' | t }}</span>
+      @if (syncPending()) {
+        <span class="l-header__pending" aria-hidden="true"></span>
+        <span class="u-visually-hidden">{{ syncLabel() | t }}</span>
+      }
+    </button>
+    @if (note()) {
+      <span class="l-header__note">{{ note() }}</span>
+    }
+  </div>
+</header>
+
+<app-install-dialog #installDialog />
+
+<app-confirm-dialog
+  #resetDialog
+  dialogId="reset-dialog"
+  [heading]="'reset.title' | t"
+  [message]="'reset.body' | t"
+  [confirmLabel]="'reset.confirm' | t"
+  (confirmed)="resetAll()"
+/>

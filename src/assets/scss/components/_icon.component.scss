@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+// app-icon renders an inline SVG from an inline template, so its styles live in this layer.
+@use '../tools' as *;
+
+.c-icon-host {
+  display: contents;
+}
+
+.c-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  inline-size: var(--icon-size, #{px(18)});
+  block-size: var(--icon-size, #{px(18)});
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  &.is-flip-rtl:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}

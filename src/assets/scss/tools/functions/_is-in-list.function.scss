@@ -1,0 +1,7 @@
+@charset "UTF-8";
+
+@use 'sass:list';
+
+@function is-in-list($list, $value) {
+  @return list.index($list, $value) != null;
+}

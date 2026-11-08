@@ -1,0 +1,335 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: flex;
+  flex: 1;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.c-map {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-3);
+  min-inline-size: 0;
+  min-block-size: 0;
+
+  &__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  &__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  &__zoom {
+    --icon-size: #{px(16)};
+
+    display: flex;
+    align-items: center;
+    gap: #{px(2)};
+    padding: #{px(2)};
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+
+  &__zoom-value {
+    min-inline-size: #{px(44)};
+    color: var(--text-muted);
+    font-family: var(--font-en);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
+  &__source {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  &__source-input {
+    min-block-size: #{px(160)};
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  &__source-actions {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  &__notice,
+  &__error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+  }
+
+  &__notice {
+    border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent);
+    background: var(--warning-soft);
+    color: var(--text);
+  }
+
+  &__notice-text {
+    flex: 1 1 #{px(200)};
+  }
+
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: var(--fs-sm);
+  }
+
+  &__spinner {
+    flex: none;
+    inline-size: #{px(14)};
+    block-size: #{px(14)};
+    border: 2px solid currentColor;
+    border-block-start-color: transparent;
+    border-radius: 50%;
+    animation: c-map-spin 0.9s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 3s;
+    }
+
+    :root[data-motion='reduced'] & {
+      animation-duration: 3s;
+    }
+  }
+
+  &__error {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  // The map always sits on a solid surface with a faint drafting grid; the stage inside moves and scales.
+  &__viewport {
+    position: relative;
+    display: grid;
+    flex: 1;
+    place-items: center;
+    min-block-size: #{px(320)};
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / #{px(24)} #{px(24)},
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / #{px(24)} #{px(24)},
+      var(--surface);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__stage {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    transform-origin: 0 0;
+    // Pan/zoom maths is physical (top-left origin), so the stage itself is always LTR;
+    // its own inline-start is then the left edge in both page directions.
+    direction: ltr;
+    will-change: transform;
+  }
+
+  &__svg {
+    display: block;
+    direction: ltr;
+  }
+
+  &__hint {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+
+  &__empty {
+    --icon-size: #{px(30)};
+
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    max-inline-size: #{px(320)};
+    color: var(--text-faint);
+    text-align: center;
+  }
+
+  &__cost {
+    color: var(--text-faint);
+    font-size: var(--fs-xs);
+  }
+
+  &__auto {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    cursor: pointer;
+  }
+
+  // The map is in the other language: translating it is offered, never done behind the user's back.
+  &__offer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+  }
+
+  &__offer-text {
+    flex: 1;
+    min-inline-size: #{px(180)};
+    font-size: var(--fs-sm);
+  }
+
+  &__empty-text {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  &__pick {
+    inline-size: auto;
+    max-inline-size: #{px(220)};
+    min-block-size: #{px(30)};
+    padding-block: 0;
+    font-size: var(--fs-xs);
+  }
+
+  // The on-map editor floats above the stage, unscaled, so it stays readable at any zoom.
+  &__layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__connect {
+    --icon-size: #{px(14)};
+
+    position: absolute;
+    inset-block-start: var(--space-2);
+    inset-inline: var(--space-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+  }
+
+  &__editor {
+    position: absolute;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    translate: -50% -50%;
+    pointer-events: auto;
+    cursor: default;
+    user-select: text;
+
+    &.is-link {
+      display: flex;
+      align-items: center;
+      padding: #{px(3)};
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      box-shadow: var(--overlay-shadow);
+    }
+  }
+
+  &__editor-input {
+    inline-size: auto;
+    min-block-size: #{px(36)};
+    max-inline-size: #{px(280)};
+    border: 2px solid var(--focus);
+    box-shadow: var(--overlay-shadow);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    text-align: center;
+    field-sizing: content;
+
+    .is-link & {
+      min-block-size: #{px(30)};
+      border-width: 1px;
+      box-shadow: none;
+      font-weight: 400;
+    }
+  }
+
+  // Tools sit under the step, out of the way of its text.
+  &__editor-tools {
+    position: absolute;
+    inset-block-start: calc(100% + var(--space-1));
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    display: flex;
+    gap: #{px(2)};
+    padding: #{px(3)};
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    box-shadow: var(--overlay-shadow);
+  }
+}
+
+// Mermaid's SVG is third-party markup: steps and links are clickable while editing.
+:host ::ng-deep .c-map.is-editing .c-map__svg :is(g.node, .c-map-hit) {
+  cursor: pointer;
+}
+
+// A wide, invisible copy of each link that catches clicks on the thin line.
+:host ::ng-deep .c-map__svg .c-map-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14px;
+}
+
+:host ::ng-deep .c-map.is-editing .c-map__svg .c-map-hit:hover {
+  stroke: color-mix(in srgb, var(--focus) 25%, transparent);
+}
+
+@keyframes c-map-spin {
+  to {
+    rotate: 1turn;
+  }
+}

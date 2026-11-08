@@ -1,0 +1,51 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+}
+
+.c-drop {
+  --icon-size: #{px(22)};
+
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+
+  &:hover,
+  &.is-dragging {
+    border-color: var(--accent-text);
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+
+  &:has(:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  &.is-compact {
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+  }
+
+  &__text {
+    display: grid;
+  }
+
+  &__label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  &__hint {
+    font-size: var(--fs-xs);
+  }
+}

@@ -1,0 +1,160 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+.c-tree {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-inline-start: var(--space-1);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  // Sits after the title; the tools keep the far end.
+  &__flag {
+    --icon-size: #{px(12)};
+
+    margin-inline-end: auto;
+    font-family: var(--font-mono);
+  }
+
+  &__count {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-faint);
+  }
+
+  &__tools {
+    display: flex;
+  }
+
+  &__upload {
+    cursor: pointer;
+
+    &:has(:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__new {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  &__new-input {
+    flex: 1 1 #{px(140)};
+    min-block-size: #{px(30)};
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  &__new-error {
+    flex-basis: 100%;
+  }
+
+  &__list {
+    display: grid;
+    gap: 1px;
+  }
+
+  // Selected file: tint plus a 2px bar on the inline-start edge, never colour alone.
+  &__row {
+    --icon-size: #{px(15)};
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    inline-size: 100%;
+    min-block-size: #{px(30)};
+    padding-inline-start: calc(var(--depth, 0) * #{px(14)} + #{px(6)});
+    padding-inline-end: var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-dense);
+    text-align: start;
+
+    @include focus-ring(-2);
+
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    &.is-folder {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    &.is-selected {
+      background: var(--accent-soft);
+      color: var(--text);
+      font-weight: 500;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: #{px(5)};
+        inset-inline-start: 0;
+        inline-size: 2px;
+        border-radius: 2px;
+        background: var(--accent);
+      }
+    }
+  }
+
+  &__chevron {
+    --icon-size: #{px(13)};
+
+    display: grid;
+    place-items: center;
+    inline-size: #{px(13)};
+    color: var(--text-faint);
+    transition: rotate var(--dur) var(--ease);
+
+    &.is-open {
+      rotate: 90deg;
+    }
+  }
+
+  &__name {
+    @include cut-text(1);
+
+    flex: 1;
+    min-inline-size: 0;
+    text-align: start;
+  }
+
+  &__empty {
+    padding: var(--space-3);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-body);
+  }
+}

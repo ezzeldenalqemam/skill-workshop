@@ -1,0 +1,18 @@
+@charset "UTF-8";
+
+// Strips the unit from a number: cut-unit(12px) -> 12.
+
+@use 'sass:meta';
+@use 'sass:math';
+
+@function cut-unit($num) {
+  @if meta.type-of($num) != number {
+    @error "The parameter of cut-unit function must be in a number type.";
+  }
+
+  @if not math.is-unitless($num) {
+    @return math.div($num, ($num * 0 + 1));
+  }
+
+  @return $num;
+}

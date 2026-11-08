@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+// c-field styles labelled form fields wherever a component renders them.
+@use '../tools' as *;
+
+.c-field {
+  display: grid;
+  gap: var(--space-1);
+
+  &__label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    line-height: var(--lh-dense);
+    color: var(--text);
+  }
+
+  &__hint {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+
+  &__control {
+    inline-size: 100%;
+    min-block-size: var(--control-h);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: var(--fs-md);
+    line-height: var(--lh-dense);
+    transition: border-color var(--dur) var(--ease);
+
+    &:hover {
+      border-color: var(--text-muted);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 1px;
+    }
+
+    &[aria-invalid='true'] {
+      border-color: var(--danger);
+    }
+  }
+
+  &__control.is-area {
+    min-block-size: #{px(72)};
+    line-height: var(--lh-body);
+    resize: vertical;
+    field-sizing: content;
+    max-block-size: #{px(240)};
+  }
+
+  &__error {
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    color: var(--danger);
+  }
+}

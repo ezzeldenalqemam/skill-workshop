@@ -1,0 +1,100 @@
+@charset "UTF-8";
+
+// c-button has no template of its own: it styles native <button>s across the app.
+@use '../tools' as *;
+
+.c-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--control-h);
+  padding-block: 0;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+
+  @include focus-ring(2);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+    border-color: var(--line-strong);
+  }
+
+  // aria-disabled keeps a busy button focusable (e.g. while a ZIP is built).
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &.is-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+  }
+
+  &.is-quiet {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-muted);
+
+    &:hover:not(:disabled) {
+      background: var(--surface-2);
+      border-color: transparent;
+      color: var(--text);
+    }
+  }
+
+  &.is-danger {
+    color: var(--danger);
+
+    &:hover:not(:disabled) {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+  }
+
+  &.is-sm {
+    min-block-size: #{px(30)};
+    padding-inline: var(--space-2);
+    font-size: var(--fs-xs);
+  }
+
+  &.is-lg {
+    min-block-size: #{px(42)};
+    padding-inline: var(--space-4);
+    font-size: var(--fs-md);
+  }
+
+  &.is-icon {
+    inline-size: var(--control-h);
+    padding-inline: 0;
+
+    &.is-sm {
+      inline-size: #{px(30)};
+    }
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--accent-soft);
+    border-color: transparent;
+    color: var(--accent-text);
+  }
+}

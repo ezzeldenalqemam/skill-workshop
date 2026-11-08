@@ -1,0 +1,54 @@
+<div class="c-explain">
+  <!-- Open an existing skill or plugin -->
+  <section class="c-explain__import" aria-labelledby="explain-import-title">
+    <div class="c-explain__import-text">
+      <h3 class="c-explain__title" id="explain-import-title">{{ 'explain.title' | t }}</h3>
+      <p class="c-explain__lead">{{ 'explain.lead' | t }}</p>
+    </div>
+    <div class="c-explain__pickers">
+      <app-drop-zone inputId="explain-files" [label]="'explain.pick' | t" [hint]="'explain.drop' | t" (files)="importFlow.openAndExplain($event)" />
+      <label class="c-button c-explain__folder">
+        <input class="u-visually-hidden" type="file" webkitdirectory multiple (change)="onFolder($event)" />
+        <app-icon name="folder-open" />
+        {{ 'explain.folder' | t }}
+      </label>
+    </div>
+    @if (importFlow.note()) {
+      <p class="c-explain__note">{{ importFlow.note() }}</p>
+    }
+  </section>
+
+  @if (html() && agent.needsTranslation() && !agent.translating()) {
+    <div class="c-explain__offer" role="group" aria-labelledby="explain-translate-text">
+      <p class="c-explain__offer-text" id="explain-translate-text">{{ 'translate.offer' | t }}</p>
+      <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.translateContent()">
+        <app-icon name="sparkles" />
+        {{ 'translate.run' | t }}
+      </button>
+    </div>
+  }
+
+  <!-- Explanation -->
+  @if (html()) {
+    <article class="c-explain__doc" aria-labelledby="explain-doc-title">
+      <div class="c-explain__doc-head">
+        <h3 class="c-explain__title" id="explain-doc-title">{{ 'explain.doc' | t }}</h3>
+        <button type="button" class="c-button is-sm" [disabled]="!agent.canRun() || !store.files().length" (click)="agent.explain()">
+          <app-icon name="refresh" />
+          {{ 'explain.again' | t }}
+        </button>
+      </div>
+      <div class="c-explain__body c-markdown" dir="auto" [innerHTML]="html()"></div>
+    </article>
+  } @else if (agent.running()) {
+    <p class="c-explain__waiting">{{ 'explain.waiting' | t }}</p>
+  } @else if (store.files().length) {
+    <div class="c-explain__empty">
+      <p class="c-explain__lead">{{ 'explain.pending' | t: { n: store.files().length } }}</p>
+      <button type="button" class="c-button is-primary" [disabled]="!agent.canRun()" (click)="agent.explain()">
+        <app-icon name="sparkles" />
+        {{ 'explain.run' | t }}
+      </button>
+    </div>
+  }
+</div>

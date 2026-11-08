@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+// Pixel value -> rem, against a 16px root: px(24) -> 1.5rem.
+// Everything sized through this reflows with the accessibility zoom, which scales the root font-size.
+
+@use 'sass:meta';
+@use 'sass:math';
+@use './cut-unit.function' as Func;
+
+@function px($val) {
+  @if meta.type-of($val) != number {
+    @error "The parameter of px function must be in a number type.";
+  }
+
+  @if $val == 0 {
+    @return 0;
+  }
+
+  @if math.unit($val) == 'rem' {
+    @return $val;
+  }
+
+  @return #{math.div(math.round(math.div(Func.cut-unit($val), 16) * 1000), 1000)}rem;
+}

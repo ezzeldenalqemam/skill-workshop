@@ -1,0 +1,58 @@
+<a class="l-app__skip" href="#main">{{ 'app.skip' | t }}</a>
+
+<div class="l-app">
+  <!-- Header -->
+  <app-header />
+  <app-project-tabs />
+
+  <!-- Phone view switcher -->
+  <nav class="l-app__views" [attr.aria-label]="'app.views' | t">
+    @for (item of phoneButtons; track item.id) {
+      <button type="button" class="l-app__view" [attr.aria-pressed]="isPhonePressed(item.id)" (click)="showPhone(item.id)">
+        <app-icon [name]="item.icon" />
+        {{ item.label | t }}
+      </button>
+    }
+  </nav>
+
+  <main class="l-app__main" id="main" tabindex="-1" [attr.data-view]="ui.phoneView()">
+    <!-- Sidebar: brief and conversation -->
+    <div class="l-app__side l-pane">
+      <div class="l-app__side-tabs" role="tablist" [attr.aria-label]="'app.sideTabs' | t">
+        @for (tab of sideTabs; track tab.id; let i = $index) {
+          <button
+            #sideTabButton
+            type="button"
+            role="tab"
+            class="l-app__side-tab"
+            [id]="'side-tab-' + tab.id"
+            [attr.aria-selected]="ui.sideTab() === tab.id"
+            [attr.aria-controls]="'side-panel-' + tab.id"
+            [attr.tabindex]="ui.sideTab() === tab.id ? 0 : -1"
+            (click)="ui.sideTab.set(tab.id)"
+            (keydown)="onSideTabKey($event, i)"
+          >
+            <app-icon [name]="tab.icon" />
+            {{ tab.label | t }}
+          </button>
+        }
+      </div>
+      <div class="l-app__side-panel" role="tabpanel" id="side-panel-spec" aria-labelledby="side-tab-spec" [hidden]="ui.sideTab() !== 'spec'">
+        <app-spec-panel />
+      </div>
+      <div class="l-app__side-panel" role="tabpanel" id="side-panel-chat" aria-labelledby="side-tab-chat" [hidden]="ui.sideTab() !== 'chat'">
+        <app-chat-panel />
+      </div>
+    </div>
+
+    <!-- Workspace: after the sidebar, so it sits on the left in Arabic and on the right in English -->
+    <div class="l-app__work">
+      <app-workspace />
+    </div>
+  </main>
+</div>
+
+<app-read-aloud-player />
+
+<!-- One polite live region for the whole app -->
+<div class="u-visually-hidden" role="status" aria-live="polite" aria-atomic="true">{{ announcer.message() }}</div>

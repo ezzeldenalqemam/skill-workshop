@@ -1,0 +1,89 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: contents;
+}
+
+.c-dialog {
+  inline-size: min(#{px(440)}, calc(100% - #{px(32)}));
+  max-inline-size: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--overlay-shadow);
+
+  &::backdrop {
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    backdrop-filter: blur(#{px(2)});
+  }
+
+  &[open] {
+    animation: c-dialog-in var(--dur) var(--ease);
+  }
+
+  &__panel {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+
+  &__body {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  &__icon {
+    --icon-size: #{px(18)};
+
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: #{px(36)};
+    block-size: #{px(36)};
+    border-radius: 50%;
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  &__copy {
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  &__title {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    line-height: var(--lh-heading);
+  }
+
+  &__text {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-body);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+
+  &__confirm {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+    font-weight: 600;
+  }
+}
+
+@keyframes c-dialog-in {
+  from {
+    opacity: 0;
+    translate: 0 #{px(6)};
+  }
+}

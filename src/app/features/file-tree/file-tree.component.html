@@ -1,0 +1,83 @@
+<nav class="c-tree" aria-labelledby="tree-title">
+  <!-- Toolbar -->
+  <div class="c-tree__head">
+    <h3 class="c-tree__title" id="tree-title">{{ 'tree.title' | t }} <span class="c-tree__count">{{ store.files().length }}</span></h3>
+    @if (store.project().hasGit) {
+      <span class="c-chip is-warning c-tree__flag" [title]="'tree.gitHint' | t">
+        <app-icon name="git" />
+        <span aria-hidden="true">Git</span>
+        <span class="u-visually-hidden">{{ 'tree.gitHint' | t }}</span>
+      </span>
+    }
+    <div class="c-tree__tools">
+      <button
+        #newToggle
+        type="button"
+        class="c-button is-icon is-sm is-quiet"
+        [attr.aria-label]="'tree.new' | t"
+        [title]="'tree.new' | t"
+        [attr.aria-expanded]="creating()"
+        [attr.aria-controls]="creating() ? 'tree-new-file' : null"
+        (click)="toggleCreate()"
+      >
+        <app-icon name="plus" />
+      </button>
+      <label class="c-button is-icon is-sm is-quiet c-tree__upload" [title]="'tree.import' | t">
+        <input class="u-visually-hidden" type="file" multiple [attr.aria-label]="'tree.import' | t" (change)="importFiles($event)" />
+        <app-icon name="upload" />
+      </label>
+    </div>
+  </div>
+
+  @if (creating()) {
+    <form class="c-tree__new" id="tree-new-file" (submit)="createFile($event)" (keydown.escape)="closeCreate()">
+      <label class="u-visually-hidden" for="new-file-path">{{ 'tree.newPath' | t }}</label>
+      <input
+        class="c-field__control c-tree__new-input"
+        id="new-file-path"
+        name="new-file-path"
+        dir="ltr"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="references/notes.md"
+        [attr.aria-invalid]="newPathError() ? 'true' : null"
+        [attr.aria-describedby]="newPathError() ? 'new-file-error' : null"
+      />
+      <button type="submit" class="c-button is-sm is-primary">{{ 'common.add' | t }}</button>
+      @if (newPathError()) {
+        <span class="c-field__error c-tree__new-error" id="new-file-error" role="alert">{{ newPathError() }}</span>
+      }
+    </form>
+  }
+
+  <!-- Tree -->
+  @if (rows().length) {
+    <ul class="c-tree__list" dir="ltr">
+      @for (node of rows(); track node.path) {
+        <li class="c-tree__item" [style.--depth]="node.depth">
+          @if (node.isFolder) {
+            <button type="button" class="c-tree__row is-folder" [attr.aria-expanded]="isOpen(node.path)" (click)="toggleFolder(node.path)">
+              <span class="c-tree__chevron" [class.is-open]="isOpen(node.path)"><app-icon name="chevron" [flipRtl]="true" /></span>
+              <app-icon [name]="isOpen(node.path) ? 'folder-open' : 'folder'" />
+              <span class="c-tree__name">{{ node.name }}</span>
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="c-tree__row"
+              [class.is-selected]="store.selectedPath() === node.path"
+              [attr.aria-current]="store.selectedPath() === node.path ? 'true' : null"
+              (click)="store.select(node.path)"
+            >
+              <span class="c-tree__chevron" aria-hidden="true"></span>
+              <app-icon name="file" />
+              <span class="c-tree__name">{{ node.name }}</span>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="c-tree__empty">{{ 'tree.empty' | t }}</p>
+  }
+</nav>

@@ -1,0 +1,23 @@
+@charset "UTF-8";
+
+// Chrome surfaces (header, sidebar shell, popovers) take the style's glass; panes stay solid.
+@mixin chrome() {
+  background: var(--chrome-bg);
+  border: 1px solid var(--chrome-line);
+  -webkit-backdrop-filter: var(--chrome-blur);
+  backdrop-filter: var(--chrome-blur);
+}
+
+@mixin pane() {
+  background: var(--surface);
+  border: 1px solid var(--pane-line);
+  border-radius: var(--pane-radius);
+}
+
+// Popovers and menus: the only places that carry a shadow.
+@mixin overlay() {
+  @include chrome;
+
+  border-radius: var(--radius-md);
+  box-shadow: var(--overlay-shadow);
+}

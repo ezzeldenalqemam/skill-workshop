@@ -1,0 +1,114 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.c-explain {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+
+  &__import {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+
+    @include mq(max, w, lg) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__import-text {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  &__title {
+    font-size: var(--fs-lg);
+  }
+
+  &__lead {
+    max-inline-size: 60ch;
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+  }
+
+  &__pickers {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  &__folder {
+    cursor: pointer;
+
+    &:has(:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__note {
+    grid-column: 1 / -1;
+    color: var(--accent-text);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+  }
+
+  &__doc {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  &__doc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--line);
+  }
+
+  &__body {
+    max-inline-size: 80ch;
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  &__waiting,
+  &__empty {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  &__offer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+  }
+
+  &__offer-text {
+    flex: 1;
+    min-inline-size: #{px(180)};
+    font-size: var(--fs-sm);
+  }
+}

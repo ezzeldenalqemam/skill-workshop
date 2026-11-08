@@ -1,0 +1,172 @@
+@use '../assets/scss/tools' as *;
+
+:host {
+  display: block;
+  block-size: 100%;
+}
+
+.l-app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  block-size: 100%;
+  padding-block: var(--space-3);
+  // Side gutter clears a phone's system bar; the safe-area insets are physical, so RTL swaps them.
+  padding-inline-start: max(#{px(16)}, env(safe-area-inset-left, 0px));
+  padding-inline-end: max(#{px(16)}, env(safe-area-inset-right, 0px));
+
+  &:dir(rtl) {
+    padding-inline-start: max(#{px(16)}, env(safe-area-inset-right, 0px));
+    padding-inline-end: max(#{px(16)}, env(safe-area-inset-left, 0px));
+  }
+
+  &__skip {
+    position: fixed;
+    z-index: 40;
+    inset-block-start: var(--space-2);
+    inset-inline-start: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-4);
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 600;
+    translate: 0 -200%;
+    transition: translate var(--dur) var(--ease);
+
+    &:focus-visible {
+      translate: 0 0;
+    }
+  }
+
+  // Phones only: one area at a time.
+  &__views {
+    display: none;
+    gap: var(--space-1);
+    padding: #{px(3)};
+    border-radius: var(--radius-md);
+
+    @include chrome;
+  }
+
+  &__view {
+    --icon-size: #{px(16)};
+
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-block-size: #{px(38)};
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+
+    @include focus-ring(1);
+
+    &[aria-pressed='true'] {
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+    }
+  }
+
+  // Two panes: sidebar (brief / Claude) at the inline start, workspace after it; English mirrors the Arabic layout.
+  &__main {
+    display: grid;
+    grid-template-columns: minmax(#{px(320)}, #{px(400)}) minmax(0, 1fr);
+    gap: var(--space-3);
+    flex: 1;
+    min-block-size: 0;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__work {
+    display: flex;
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  &__side {
+    @include chrome;
+  }
+
+  &__side-tabs {
+    display: flex;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    border-block-end: 1px solid var(--chrome-line);
+  }
+
+  &__side-tab {
+    --icon-size: #{px(16)};
+
+    position: relative;
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-block-size: #{px(36)};
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+
+    @include focus-ring(1);
+
+    &:hover {
+      color: var(--text);
+    }
+
+    &[aria-selected='true'] {
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      font-weight: 600;
+    }
+  }
+
+  &__side-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-block-size: 0;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  @include mq(max, w, md) {
+    block-size: auto;
+    min-block-size: 100%;
+
+    &__views {
+      display: flex;
+    }
+
+    &__main,
+    &__main:dir(ltr) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__side,
+    &__work {
+      min-block-size: calc(100dvh - #{px(170)});
+    }
+
+    &__main[data-view='work'] &__side,
+    &__main[data-view='side'] &__work {
+      display: none;
+    }
+
+    &__side-tabs {
+      display: none;
+    }
+  }
+}

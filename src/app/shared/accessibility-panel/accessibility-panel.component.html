@@ -1,0 +1,73 @@
+<!-- Toggle -->
+<button #toggle type="button" class="c-button is-icon is-quiet" popovertarget="a11y-panel" aria-haspopup="dialog" [attr.aria-label]="'a11y.title' | t" [title]="'a11y.title' | t">
+  <app-icon name="accessibility" />
+</button>
+
+<!-- Panel -->
+<div id="a11y-panel" class="c-a11y" role="dialog" aria-labelledby="a11y-panel-title" [appAnchoredPopover]="toggle">
+  <div class="c-a11y__head">
+    <h2 class="c-a11y__title" id="a11y-panel-title">{{ 'a11y.title' | t }}</h2>
+    <button type="button" class="c-button is-icon is-sm is-quiet" popovertarget="a11y-panel" popovertargetaction="hide" [attr.aria-label]="'common.close' | t">
+      <app-icon name="close" />
+    </button>
+  </div>
+
+  <div class="c-a11y__grid">
+    <button type="button" class="c-a11y__tile" [disabled]="!a11y.canZoomOut()" (click)="zoomOut()">
+      <app-icon name="zoom-out" />
+      <span class="c-a11y__label">{{ 'a11y.zoomOut' | t }}</span>
+    </button>
+
+    <button type="button" class="c-a11y__tile" [disabled]="!a11y.canZoomIn()" (click)="zoomIn()">
+      <app-icon name="zoom-in" />
+      <span class="c-a11y__label">{{ 'a11y.zoomIn' | t }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="c-a11y__tile"
+      [class.is-active]="a11y.readAloud()"
+      [attr.aria-pressed]="a11y.readAloud()"
+      [disabled]="!a11y.speechSupported"
+      (click)="toggleReadAloud()"
+    >
+      <app-icon name="volume" />
+      <span class="c-a11y__label">{{ 'a11y.read' | t }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="c-a11y__tile"
+      [class.is-active]="a11y.colorIndex() > 0"
+      aria-describedby="a11y-color-state"
+      (click)="cycleColor()"
+    >
+      <app-icon name="contrast" />
+      <span class="c-a11y__label">{{ 'a11y.color' | t }}</span>
+      <span class="c-a11y__steps" aria-hidden="true">
+        @for (step of colorSteps; track step.key; let i = $index) {
+          <span class="c-a11y__step" [class.is-on]="i === a11y.colorIndex()"></span>
+        }
+      </span>
+    </button>
+
+    <button type="button" class="c-a11y__tile" [class.is-active]="a11y.reduceMotion()" [attr.aria-pressed]="a11y.reduceMotion()" (click)="toggleMotion()">
+      <app-icon name="motion" />
+      <span class="c-a11y__label">{{ 'a11y.motion' | t }}</span>
+    </button>
+  </div>
+
+  <p class="c-a11y__status">
+    <span>{{ 'a11y.size' | t: { n: a11y.zoomPercent() } }}</span>
+    <span id="a11y-color-state">{{ 'a11y.colors' | t: { x: (a11y.colorMode().label | t) } }}</span>
+  </p>
+
+  @if (a11y.readAloud()) {
+    <p class="c-a11y__note">{{ 'a11y.note' | t }}</p>
+  }
+
+  <button type="button" class="c-button c-a11y__reset" [disabled]="!a11y.hasChanges()" (click)="reset()">
+    <app-icon name="refresh" />
+    {{ 'a11y.reset' | t }}
+  </button>
+</div>

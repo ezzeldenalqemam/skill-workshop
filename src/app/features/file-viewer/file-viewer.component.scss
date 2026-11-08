@@ -1,0 +1,316 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+.c-viewer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+
+  &.is-empty {
+    --icon-size: #{px(28)};
+
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    color: var(--text-faint);
+  }
+
+  &__empty-title {
+    color: var(--text);
+    font-size: var(--fs-md);
+    font-weight: 600;
+  }
+
+  &__empty-text {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    text-align: center;
+  }
+
+  // Loading: a ring while Claude works, then a faint outline of the page it is writing.
+  &__spinner {
+    inline-size: #{px(28)};
+    block-size: #{px(28)};
+    margin-block-end: var(--space-1);
+    border: 2px solid var(--line);
+    border-block-start-color: var(--accent);
+    border-radius: 50%;
+    animation: c-viewer-spin 0.9s linear infinite;
+  }
+
+  &__skeleton {
+    display: grid;
+    gap: var(--space-2);
+    inline-size: min(100%, #{px(320)});
+    margin-block-start: var(--space-4);
+  }
+
+  &__skeleton-line {
+    block-size: #{px(8)};
+    border-radius: #{px(4)};
+    background: linear-gradient(90deg, var(--surface-3), var(--surface-2), var(--surface-3)) 0 0 / 200% 100%;
+    animation: c-viewer-shimmer 1.6s ease-in-out infinite;
+
+    &:nth-child(2) {
+      inline-size: 85%;
+    }
+
+    &:nth-child(3) {
+      inline-size: 60%;
+    }
+  }
+
+  // A thin moving strip under the header while Claude may be rewriting the open file.
+  &__progress {
+    position: relative;
+    flex: none;
+    block-size: #{px(3)};
+    overflow: hidden;
+    background: var(--accent-soft);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inline-size: 35%;
+      background: var(--accent);
+      animation: c-viewer-slide 1.2s var(--ease) infinite;
+    }
+  }
+
+  &__spinner,
+  &__skeleton-line,
+  &__progress::after {
+    @media (prefers-reduced-motion: reduce) {
+      animation-duration: 3s;
+    }
+
+    :root[data-motion='reduced'] & {
+      animation-duration: 3s;
+    }
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-block-size: #{px(44)};
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    border-block-end: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+
+  &__path {
+    @include cut-text(1);
+
+    min-inline-size: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    unicode-bidi: isolate;
+  }
+
+  &__rename {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    flex: 1 1 #{px(240)};
+  }
+
+  &__rename-input {
+    flex: 1 1 #{px(160)};
+    min-block-size: #{px(30)};
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
+
+  &__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  &__switch {
+    display: flex;
+    padding: #{px(2)};
+    border-radius: var(--radius-sm);
+    background: var(--surface-3);
+  }
+
+  &__confirm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    background: var(--danger-soft);
+    color: var(--text);
+    font-size: var(--fs-sm);
+  }
+
+  &__confirm-actions {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  &__preview {
+    @include scroll('block');
+
+    flex: 1;
+    min-block-size: 0;
+    padding-block: var(--space-5) var(--space-6);
+    padding-inline: var(--space-5);
+  }
+
+  // One centred reading column, whatever the page or content direction.
+  &__page {
+    display: grid;
+    gap: var(--space-5);
+    max-inline-size: 76ch;
+    margin-inline: auto;
+    font-size: var(--fs-read);
+  }
+
+  &__markdown {
+    max-inline-size: none;
+    min-inline-size: 0;
+  }
+
+  &__meta-card {
+    padding-block: var(--space-3);
+    padding-inline: var(--space-4);
+    border: 1px solid var(--line);
+    border-inline-start: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+  }
+
+  &__meta-list {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  &__meta-row {
+    display: grid;
+    gap: #{px(2)};
+    min-inline-size: 0;
+  }
+
+  &__meta-key {
+    color: var(--text-faint);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  &__meta-value {
+    margin-inline-start: 0;
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-body);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+
+    .is-name & {
+      color: var(--accent-text);
+      font-family: var(--font-mono);
+      font-size: var(--fs-md);
+      font-weight: 600;
+    }
+  }
+
+  &__frontmatter {
+    @include scroll('inline');
+
+    padding: var(--space-3);
+    border-inline-start: 2px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--code-bg);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-code);
+    white-space: pre-wrap;
+    unicode-bidi: isolate;
+  }
+
+  &__editor-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-block-size: 0;
+  }
+
+  &__editor {
+    @include scroll('block');
+
+    flex: 1;
+    min-block-size: #{px(280)};
+    inline-size: 100%;
+    padding: var(--space-4);
+    border: 0;
+    background: var(--code-bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-code);
+    line-height: var(--lh-code);
+    tab-size: 2;
+    resize: none;
+    unicode-bidi: isolate;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+    }
+  }
+
+  &__meta {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    border-block-start: 1px solid var(--line);
+    color: var(--text-faint);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes c-viewer-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+
+@keyframes c-viewer-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// Runs from the inline start, so it follows the page direction.
+@keyframes c-viewer-slide {
+  from {
+    inset-inline-start: -35%;
+  }
+
+  to {
+    inset-inline-start: 100%;
+  }
+}

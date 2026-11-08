@@ -1,0 +1,279 @@
+@charset "UTF-8";
+
+// Skill Workshop — design tokens.
+// Layout concept: a calm two-pane desk — the brief and the conversation share a sidebar,
+// the workspace (files, map, explanation) sits on the physical left where file names read naturally.
+//
+// Values follow the research brief: formal institutional accents, off-white / blue-grey neutrals
+// (never #000 or #fff), every text pairing checked to WCAG AA or better (ratios noted inline),
+// IBM Plex Sans Arabic + IBM Plex Sans + IBM Plex Mono (the pairing of the Saudi DGA Platforms Code).
+//
+// Attributes on <html> the user controls:
+//   data-accent  navy (default) | green | petrol | burgundy | bronze | slate
+//   data-mode    light | dark (absent = follow the host's data-theme / the OS)
+//   data-motion  reduced (from the accessibility panel)
+
+@use '../tools' as *;
+
+// ---------------------------------------------------------------------------
+// Scale, type and shape (mode independent)
+// ---------------------------------------------------------------------------
+:root {
+  --font-ar: 'IBM Plex Sans Arabic', 'IBM Plex Sans', 'Segoe UI', Tahoma, system-ui, sans-serif;
+  --font-en: 'IBM Plex Sans', 'IBM Plex Sans Arabic', 'Segoe UI', system-ui, sans-serif;
+  // Plex Mono has no Arabic; Arabic in code falls through to Plex Sans Arabic and stays joined.
+  --font-mono: 'IBM Plex Mono', 'IBM Plex Sans Arabic', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-body: var(--font-ar);
+
+  --fs-xs: #{px(12)};
+  --fs-sm: #{px(13)};
+  --fs-md: #{px(15)};
+  --fs-read: #{px(16)};
+  --fs-code: #{px(13.5)};
+  --fs-lg: #{px(18)};
+  --fs-xl: #{px(20)};
+  --fs-2xl: #{px(24)};
+
+  --lh-body: 1.7;
+  --lh-dense: 1.45;
+  --lh-heading: 1.35;
+  --lh-code: 1.6;
+
+  --space-1: #{px(4)};
+  --space-2: #{px(8)};
+  --space-3: #{px(12)};
+  --space-4: #{px(16)};
+  --space-5: #{px(24)};
+  --space-6: #{px(32)};
+
+  --radius-sm: #{px(6)};
+  --radius-md: #{px(8)};
+  --control-h: #{px(36)};
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 160ms;
+}
+
+// Latin needs less leading than Arabic.
+:root:lang(en) {
+  --font-body: var(--font-en);
+  --lh-body: 1.5;
+  --lh-dense: 1.3;
+  --lh-heading: 1.2;
+}
+
+// ---------------------------------------------------------------------------
+// Accent families — light and dark values per family.
+// fill = primary button / selected marker; text = accent used as text on surface.
+// ---------------------------------------------------------------------------
+:root {
+  // Navy (institutional): fill 7.55:1 with light label, text 7.66:1.
+  --acc-fill-lt: #21539c;
+  --acc-hover-lt: #1b488a;
+  --acc-tint-lt: #e3eefe;
+  --acc-text-lt: #235193;
+  --acc-fill-dk: #8db3ea;
+  --acc-hover-dk: #a4c6f8;
+  --acc-tint-dk: #223147;
+  --acc-text-dk: #94b9f1;
+
+  // Swatches in the appearance menu always show each family's light fill.
+  --swatch-navy: #21539c;
+  --swatch-green: #077045;
+  --swatch-petrol: #00697b;
+  --swatch-burgundy: #93293b;
+  --swatch-bronze: #845011;
+  --swatch-slate: #3f5168;
+}
+
+:root[data-accent='green'] {
+  // Institutional green: 6.15:1 / 6.59:1 light, 9.16:1 dark.
+  --acc-fill-lt: #077045;
+  --acc-hover-lt: #085c38;
+  --acc-tint-lt: #e0f2e6;
+  --acc-text-lt: #076941;
+  --acc-fill-dk: #6bcb97;
+  --acc-hover-dk: #84d8a9;
+  --acc-tint-dk: #1b3727;
+  --acc-text-dk: #71d29d;
+}
+
+:root[data-accent='petrol'] {
+  // Petrol teal: 6.35:1 / 6.72:1 light, 8.96:1 dark.
+  --acc-fill-lt: #00697b;
+  --acc-hover-lt: #005766;
+  --acc-tint-lt: #dbf2f7;
+  --acc-text-lt: #056374;
+  --acc-fill-dk: #70c2d6;
+  --acc-hover-dk: #8ad0e1;
+  --acc-tint-dk: #0f363e;
+  --acc-text-dk: #77c9dd;
+}
+
+:root[data-accent='burgundy'] {
+  // Burgundy: 8.01:1 / 8.11:1 light, 8.13:1 dark.
+  --acc-fill-lt: #93293b;
+  --acc-hover-lt: #7e2735;
+  --acc-tint-lt: #fde6e7;
+  --acc-text-lt: #8c2b3b;
+  --acc-fill-dk: #e49a9f;
+  --acc-hover-dk: #edb0b4;
+  --acc-tint-dk: #442729;
+  --acc-text-dk: #eba0a5;
+}
+
+:root[data-accent='bronze'] {
+  // Bronze: 6.70:1 / 7.12:1 light, 8.88:1 dark.
+  --acc-fill-lt: #845011;
+  --acc-hover-lt: #6e4108;
+  --acc-tint-lt: #f9eadc;
+  --acc-text-lt: #7c4b11;
+  --acc-fill-dk: #e4aa71;
+  --acc-hover-dk: #edbd8c;
+  --acc-tint-dk: #402b17;
+  --acc-text-dk: #ebb077;
+}
+
+:root[data-accent='slate'] {
+  // Slate: 8.11:1 / 7.90:1 light, 9.76:1 dark.
+  --acc-fill-lt: #3f5168;
+  --acc-hover-lt: #314155;
+  --acc-tint-lt: #e0e7f0;
+  --acc-text-lt: #3f5168;
+  --acc-fill-dk: #adc0d8;
+  --acc-hover-dk: #c0d0e4;
+  --acc-tint-dk: #2f3640;
+  --acc-text-dk: #b0c3db;
+}
+
+// ---------------------------------------------------------------------------
+// Modes
+// ---------------------------------------------------------------------------
+@mixin light-tokens {
+  --bg: #f4f6f8;
+  --surface: #fbfcfe;
+  --surface-2: #ebeff2;
+  --surface-3: #e2e7ec;
+  --line: #d3d8dd;
+  --line-strong: #81878d; // 3.54:1 — meets the 3:1 rule for input borders
+  --text: #21272e; // 14.67:1 on surface
+  --text-muted: #585e67; // 6.37:1 on surface
+  --text-faint: #646b74; // about 5.3:1, placeholders
+
+  --accent: var(--acc-fill-lt);
+  --accent-hover: var(--acc-hover-lt);
+  --accent-soft: var(--acc-tint-lt);
+  --accent-text: var(--acc-text-lt);
+  --on-accent: #fbfcfe;
+  --focus: #2460b7; // fixed blue, independent of the accent
+
+  --success: #206b38;
+  --success-soft: #e5f5e7;
+  --warning: #84550f;
+  --warning-soft: #fbeedf;
+  --danger: #9e2c2c;
+  --danger-soft: #feebe9;
+
+  --glass: rgb(251 252 254 / 0.78);
+  --glass-line: rgb(33 39 46 / 0.1);
+  --overlay-shadow: 0 #{px(4)} #{px(16)} rgb(16 24 40 / 0.08), 0 1px 2px rgb(16 24 40 / 0.06);
+  --grid-line: color-mix(in srgb, var(--accent-text) 7%, transparent);
+  --wash: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+  --code-bg: #f7f9fb;
+}
+
+@mixin dark-tokens {
+  --bg: #13161b;
+  --surface: #1a1e23;
+  --surface-2: #23272d;
+  --surface-3: #2b3037;
+  --line: #373c43;
+  --line-strong: #6c727a; // 3.45:1
+  --text: #dce0e5; // 12.63:1 on surface
+  --text-muted: #b0b6be; // 8.20:1
+  --text-faint: #959ca5;
+
+  --accent: var(--acc-fill-dk);
+  --accent-hover: var(--acc-hover-dk);
+  --accent-soft: var(--acc-tint-dk);
+  --accent-text: var(--acc-text-dk);
+  --on-accent: #13161b;
+  --focus: #8bb9fd;
+
+  --success: #89d298;
+  --success-soft: #1f3423;
+  --warning: #ebb16c;
+  --warning-soft: #3b2a17;
+  --danger: #fda19a;
+  --danger-soft: #402624;
+
+  --glass: rgb(26 30 35 / 0.74);
+  --glass-line: rgb(220 224 229 / 0.1);
+  // Dark mode shows elevation by lightness; overlays still need a soft edge.
+  --overlay-shadow: 0 #{px(8)} #{px(24)} rgb(0 0 0 / 0.35);
+  --grid-line: color-mix(in srgb, var(--accent-text) 6%, transparent);
+  --wash: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+  --code-bg: #171a1f;
+
+  color-scheme: dark;
+}
+
+:root {
+  @include light-tokens;
+}
+
+// "Auto": follow the host's explicit choice, else the OS — unless the user picked a mode here.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-mode='light']) {
+    @include dark-tokens;
+  }
+}
+
+:root[data-theme='dark']:not([data-mode='light']),
+:root[data-mode='dark'] {
+  @include dark-tokens;
+}
+
+:root[data-mode='light'] {
+  color-scheme: light;
+}
+
+// ---------------------------------------------------------------------------
+// Surfaces. Glass is reserved for chrome (header, sidebar shell, popovers);
+// the editor, code, chat text and the map always sit on solid surfaces.
+// ---------------------------------------------------------------------------
+:root {
+  --chrome-bg: var(--glass);
+  --chrome-line: var(--glass-line);
+  --chrome-blur: blur(#{px(14)}) saturate(1.1);
+  --pane-line: var(--line);
+  --pane-radius: var(--radius-md);
+  --page-bg:
+    radial-gradient(48rem 32rem at 100% 0%, var(--wash), transparent 70%),
+    radial-gradient(40rem 28rem at 0% 100%, var(--wash), transparent 70%),
+    var(--bg);
+}
+
+// Viewers who ask the OS for less transparency, or browsers without backdrop blur, get solid chrome.
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --chrome-bg: var(--surface);
+    --chrome-blur: none;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --chrome-bg: var(--surface);
+  }
+}
+
+// Motion: every component animates through --dur, so this one switch quiets the whole page.
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur: 1ms;
+  }
+}
+
+:root[data-motion='reduced'] {
+  --dur: 1ms;
+}

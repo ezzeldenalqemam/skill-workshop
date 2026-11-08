@@ -1,0 +1,52 @@
+<div class="c-start">
+  <section class="c-start__section" aria-labelledby="start-library-title">
+    <div class="c-start__head">
+      <h3 class="c-start__title" id="start-library-title">{{ 'start.libraryTitle' | t }}</h3>
+      <p class="c-start__lead">{{ (store.library().length ? 'start.libraryLead' : 'start.libraryEmpty') | t }}</p>
+    </div>
+
+    @if (store.library().length) {
+      <ul class="c-start__list">
+        @for (entry of store.library(); track entry.id) {
+          <li class="c-start__card">
+            <div class="c-start__card-head">
+              <span class="c-start__name" dir="ltr">{{ entry.name }}</span>
+              <span class="c-chip c-start__origin">{{ originLabels[entry.origin] | t }}</span>
+              <span class="c-start__state" [attr.data-state]="stateOf(entry)">{{ stateKey(entry) | t }}</span>
+            </div>
+            @if (entry.description) {
+              <p class="c-start__desc" dir="auto">{{ entry.description }}</p>
+            }
+            <div class="c-start__actions">
+              <button type="button" class="c-button is-sm" (click)="open(entry)">
+                <app-icon name="file" />
+                {{ 'start.open' | t }}
+              </button>
+              <button type="button" class="c-button is-sm is-quiet" [disabled]="!agent.canRun()" [title]="'start.costHint' | t" (click)="openAndExplain(entry)">
+                <app-icon name="sparkles" />
+                {{ 'start.explain' | t }}
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <div class="c-start__more">
+    <section class="c-start__section" aria-labelledby="start-import-title">
+      <h3 class="c-start__title" id="start-import-title">{{ 'start.importTitle' | t }}</h3>
+      <p class="c-start__lead">{{ 'start.importLead' | t }}</p>
+      <app-drop-zone inputId="start-files" [label]="'explain.pick' | t" [hint]="'explain.drop' | t" (files)="importFlow.openAndExplain($event)" />
+    </section>
+
+    <section class="c-start__section" aria-labelledby="start-brief-title">
+      <h3 class="c-start__title" id="start-brief-title">{{ 'start.briefTitle' | t }}</h3>
+      <p class="c-start__lead">{{ 'start.briefLead' | t }}</p>
+      <button type="button" class="c-button is-sm c-start__brief" (click)="startFromBrief()">
+        <app-icon name="edit" />
+        {{ 'start.brief' | t }}
+      </button>
+    </section>
+  </div>
+</div>

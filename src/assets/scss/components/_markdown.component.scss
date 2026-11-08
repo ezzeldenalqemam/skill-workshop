@@ -1,0 +1,119 @@
+@charset "UTF-8";
+
+// Rendered Markdown preview. The markup is generated, so each element gets a
+// c-markdown__<tag> class from the sanitizer hook instead of being styled by tag.
+@use '../tools' as *;
+
+.c-markdown {
+  max-inline-size: 72ch;
+  color: var(--text);
+  font-size: var(--fs-read);
+  line-height: var(--lh-body);
+
+  > * + * {
+    margin-block-start: var(--space-3);
+  }
+
+  &__h1,
+  &__h2,
+  &__h3,
+  &__h4 {
+    margin-block-start: var(--space-5);
+    font-weight: 600;
+    line-height: var(--lh-heading);
+    text-wrap: balance;
+  }
+
+  &__h1 {
+    font-size: var(--fs-2xl);
+  }
+
+  &__h2 {
+    padding-block-end: var(--space-1);
+    border-block-end: 1px solid var(--line);
+    font-size: var(--fs-xl);
+  }
+
+  &__h3 {
+    font-size: var(--fs-lg);
+  }
+
+  &__a {
+    color: var(--accent-text);
+    text-decoration-thickness: 1px;
+    text-underline-offset: #{px(3)};
+  }
+
+  &__ul,
+  &__ol {
+    padding-inline-start: var(--space-5);
+  }
+
+  &__ul {
+    list-style: disc;
+  }
+
+  &__ol {
+    list-style: decimal;
+  }
+
+  &__li + &__li {
+    margin-block-start: var(--space-1);
+  }
+
+  &__code {
+    padding-block: #{px(1)};
+    padding-inline: #{px(5)};
+    border-radius: #{px(4)};
+    background: var(--code-bg);
+    font-size: 0.9em;
+  }
+
+  &__pre {
+    @include scroll('inline');
+
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--code-bg);
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-size: var(--fs-code);
+    line-height: var(--lh-code);
+  }
+
+  &__pre &__code {
+    padding: 0;
+    background: none;
+  }
+
+  &__blockquote {
+    padding-inline-start: var(--space-3);
+    border-inline-start: 2px solid var(--accent);
+    color: var(--text-muted);
+  }
+
+  &__table {
+    display: block;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+    overflow-x: auto;
+  }
+
+  &__th,
+  &__td {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-3);
+    border: 1px solid var(--line);
+    text-align: start;
+  }
+
+  &__th {
+    background: var(--surface-2);
+    font-weight: 600;
+  }
+
+  &__hr {
+    border: 0;
+    border-block-start: 1px solid var(--line);
+  }
+}

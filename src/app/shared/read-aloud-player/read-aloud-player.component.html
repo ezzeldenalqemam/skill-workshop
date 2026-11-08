@@ -1,0 +1,25 @@
+@if (visible()) {
+  <div class="c-player" role="group" [attr.aria-label]="'player.label' | t" (keydown.escape)="close()">
+    <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'player.close' | t" (click)="close()">
+      <app-icon name="close" />
+    </button>
+    <button
+      #playButton
+      type="button"
+      class="c-button is-icon is-primary c-player__main"
+      [attr.aria-label]="(a11y.speaking() ? (a11y.paused() ? 'player.resume' : 'player.pause') : 'player.play') | t"
+      (click)="play()"
+    >
+      <app-icon [name]="a11y.speaking() && !a11y.paused() ? 'pause' : 'play'" />
+    </button>
+    <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'player.stop' | t" [disabled]="!a11y.speaking()" (click)="stop()">
+      <app-icon name="stop" />
+    </button>
+    <button type="button" class="c-button is-sm is-quiet c-player__rate" [attr.aria-label]="'player.rate' | t: { r: a11y.rate() }" (click)="a11y.cycleRate()">
+      {{ a11y.rate() }}x
+    </button>
+    <span class="c-player__status" aria-live="polite">
+      {{ (a11y.speaking() ? (a11y.paused() ? 'player.paused' : 'player.reading') : 'player.ready') | t }}
+    </span>
+  </div>
+}

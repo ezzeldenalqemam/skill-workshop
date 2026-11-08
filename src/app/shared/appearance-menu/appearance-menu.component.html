@@ -1,0 +1,83 @@
+<!-- Toggle -->
+<button #toggle type="button" class="c-button is-icon is-quiet" popovertarget="appearance-menu" aria-haspopup="dialog" [attr.aria-label]="'look.title' | t" [title]="'look.title' | t">
+  <app-icon name="settings" />
+</button>
+
+<!-- Settings: language, appearance, and starting over -->
+<div id="appearance-menu" class="c-appearance" role="dialog" aria-labelledby="appearance-menu-title" [appAnchoredPopover]="toggle">
+  <div class="c-appearance__head">
+    <h2 class="c-appearance__title" id="appearance-menu-title">{{ 'look.title' | t }}</h2>
+    <button type="button" class="c-button is-icon is-sm is-quiet" popovertarget="appearance-menu" popovertargetaction="hide" [attr.aria-label]="'common.close' | t">
+      <app-icon name="close" />
+    </button>
+  </div>
+
+  <fieldset class="c-appearance__group">
+    <legend class="c-appearance__legend">{{ 'look.lang' | t }}</legend>
+    <div class="c-appearance__segmented">
+      @for (option of langs; track option.value) {
+        <label class="c-appearance__segment" [class.is-checked]="i18n.lang() === option.value" [attr.lang]="option.value">
+          <input
+            class="u-visually-hidden"
+            type="radio"
+            name="ui-lang"
+            [id]="'ui-lang-' + option.value"
+            [value]="option.value"
+            [checked]="i18n.lang() === option.value"
+            (change)="setLang(option.value)"
+          />
+          {{ option.label }}
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="c-appearance__group">
+    <legend class="c-appearance__legend">{{ 'look.mode' | t }}</legend>
+    <div class="c-appearance__segmented">
+      @for (option of modes; track option.value) {
+        <label class="c-appearance__segment" [class.is-checked]="appearance.mode() === option.value">
+          <input
+            class="u-visually-hidden"
+            type="radio"
+            name="color-mode"
+            [id]="'color-mode-' + option.value"
+            [value]="option.value"
+            [checked]="appearance.mode() === option.value"
+            (change)="setMode(option.value)"
+          />
+          {{ option.label | t }}
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="c-appearance__group">
+    <legend class="c-appearance__legend">{{ 'look.color' | t }}</legend>
+    <div class="c-appearance__accents">
+      @for (option of accents; track option.value) {
+        <label class="c-appearance__accent" [class.is-checked]="appearance.accent() === option.value">
+          <input
+            class="u-visually-hidden"
+            type="radio"
+            name="accent"
+            [id]="'accent-' + option.value"
+            [value]="option.value"
+            [checked]="appearance.accent() === option.value"
+            (change)="setAccent(option.value)"
+          />
+          <span class="c-appearance__swatch" [attr.data-swatch]="option.value" aria-hidden="true"></span>
+          <span class="c-appearance__name">{{ option.label | t }}</span>
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  <div class="c-appearance__danger">
+    <button type="button" class="c-button is-sm is-quiet is-danger" popovertarget="appearance-menu" popovertargetaction="hide" (click)="resetRequested.emit()">
+      <app-icon name="refresh" />
+      {{ 'header.reset' | t }}
+    </button>
+    <span class="c-appearance__hint">{{ 'header.resetHint' | t }}</span>
+  </div>
+</div>

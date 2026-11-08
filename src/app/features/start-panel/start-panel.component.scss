@@ -1,0 +1,121 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+  flex: 1;
+  min-block-size: 0;
+}
+
+.c-start {
+  @include scroll('block');
+
+  display: grid;
+  align-content: start;
+  gap: var(--space-6);
+  block-size: 100%;
+  padding: var(--space-5);
+
+  &__section {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  &__head {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  &__title {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+  }
+
+  &__lead {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(#{px(260)}, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  &__card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+  }
+
+  &__name {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  &__origin {
+    font-size: var(--fs-xs);
+  }
+
+  // Installed as is, changed since installing, or never installed.
+  &__state {
+    margin-inline-start: auto;
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--warning-soft);
+    color: var(--text);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+
+    &[data-state='installed'] {
+      background: var(--success-soft);
+    }
+  }
+
+  &__desc {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-body);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  &__more {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(#{px(260)}, 1fr));
+    gap: var(--space-5);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--line);
+  }
+
+  &__brief {
+    justify-self: start;
+  }
+}

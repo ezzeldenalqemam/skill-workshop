@@ -1,0 +1,232 @@
+<div class="c-map" [class.is-editing]="editMode()">
+  <!-- Toolbar -->
+  <div class="c-map__bar">
+    <div class="c-map__tools">
+      <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.drawMap()">
+        <app-icon name="map" />
+        {{ (store.project().map ? 'map.redraw' : 'map.draw') | t }}
+      </button>
+      @if (store.project().map) {
+        <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="editMode()" (click)="toggleEdit()">
+          <app-icon name="edit" />
+          {{ (editMode() ? 'map.doneEditing' : 'map.edit') | t }}
+        </button>
+        <button type="button" class="c-button is-sm is-quiet" [attr.aria-expanded]="codeOpen()" [attr.aria-controls]="codeOpen() ? 'map-source' : null" (click)="codeOpen() ? codeOpen.set(false) : openSource()">
+          <app-icon name="code" />
+          {{ (codeOpen() ? 'map.hideCode' : 'map.showCode') | t }}
+        </button>
+      } @else {
+        <button type="button" class="c-button is-sm is-quiet" (click)="startMap()">
+          <app-icon name="plus" />
+          {{ 'map.start' | t }}
+        </button>
+      }
+      @if (editMode() && flow(); as flow) {
+        <label class="u-visually-hidden" for="map-node-pick">{{ 'map.step' | t }}</label>
+        <select class="c-field__control c-map__pick" id="map-node-pick" (change)="pick($event)">
+          <option value="" [selected]="!selectedId()">{{ 'map.step' | t }}…</option>
+          @for (node of flow.nodes; track node.id) {
+            <option [value]="node.id" [selected]="node.id === selectedId()">{{ node.label }}</option>
+          }
+        </select>
+      }
+    </div>
+
+    @if (svg()) {
+      <div class="c-map__zoom" role="group" [attr.aria-label]="'map.zoomLevel' | t: { n: zoomPercent() }">
+        <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'map.zoomOut' | t" [title]="'map.zoomOut' | t" (click)="zoomOut()">
+          <app-icon name="minus" />
+        </button>
+        <span class="c-map__zoom-value" aria-hidden="true">{{ zoomPercent() }}%</span>
+        <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'map.zoomIn' | t" [title]="'map.zoomIn' | t" (click)="zoomIn()">
+          <app-icon name="plus" />
+        </button>
+        <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'map.fit' | t" [title]="'map.fit' | t" (click)="fitView()">
+          <app-icon name="fit" />
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (codeOpen()) {
+    <div class="c-map__source" id="map-source">
+      <label class="c-field__label" for="map-source-input">{{ 'map.source' | t }}</label>
+      <textarea
+        class="c-field__control is-area c-map__source-input"
+        id="map-source-input"
+        dir="ltr"
+        spellcheck="false"
+        [value]="draft()"
+        (input)="draft.set($any($event.target).value)"
+      ></textarea>
+      <div class="c-map__source-actions">
+        <button type="button" class="c-button is-sm is-primary" (click)="applySource()">{{ 'common.apply' | t }}</button>
+        <button type="button" class="c-button is-sm is-quiet" (click)="codeOpen.set(false)">{{ 'common.cancel' | t }}</button>
+      </div>
+    </div>
+  }
+
+  @if (store.project().mapEdited) {
+    <div class="c-map__notice" role="status">
+      <app-icon name="alert" />
+      <p class="c-map__notice-text">{{ 'map.edited' | t }}</p>
+      <button type="button" class="c-button is-sm is-primary" [disabled]="!agent.canRun()" (click)="agent.applyMap()">
+        <app-icon name="sparkles" />
+        {{ 'map.apply' | t }}
+      </button>
+    </div>
+  }
+
+  @if (agent.needsTranslation() && !agent.translating()) {
+    <div class="c-map__offer" role="group" aria-labelledby="map-translate-text">
+      <p class="c-map__offer-text" id="map-translate-text">{{ 'translate.offer' | t }}</p>
+      <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.translateContent()">
+        <app-icon name="sparkles" />
+        {{ 'translate.run' | t }}
+      </button>
+    </div>
+  }
+
+  @if (agent.translating()) {
+    <p class="c-map__status" role="status">
+      <span class="c-map__spinner" aria-hidden="true"></span>
+      {{ 'translate.working' | t }}
+    </p>
+  }
+
+  @if (error()) {
+    <p class="c-map__error" role="alert">
+      <app-icon name="alert" />
+      {{ error() }}
+    </p>
+  }
+
+  <p class="c-map__hint" id="map-view-hint">
+    {{ 'map.viewHint' | t }}
+    @if (editMode()) {
+      {{ (flow() ? 'map.editHint' : 'map.unsupported') | t }}
+    }
+  </p>
+
+    <!-- Canvas: drag, scroll and zoom; focusable so the keyboard can do the same -->
+    <figure
+      #viewport
+      class="c-map__viewport"
+      tabindex="0"
+      aria-describedby="map-view-hint"
+      [attr.aria-busy]="loading()"
+      (wheel)="onWheel($event)"
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp($event)"
+      (pointercancel)="onPointerUp($event)"
+      (keydown)="onKeydown($event)"
+    >
+      @if (svg()) {
+        <div #stage class="c-map__stage" [style.transform]="transform()">
+          <div class="c-map__svg" role="img" [attr.aria-label]="'map.label' | t: { name: store.spec().name || store.spec().idea }" [innerHTML]="svg()"></div>
+        </div>
+      } @else if (!store.project().map) {
+        <div class="c-map__empty">
+          <app-icon name="map" />
+          @if (store.files().length) {
+            <p class="c-map__empty-text">{{ 'map.offer' | t }}</p>
+            <button type="button" class="c-button is-primary" [disabled]="!agent.canRun()" (click)="agent.drawMap()">
+              <app-icon name="map" />
+              {{ 'map.drawThis' | t }}
+            </button>
+            <span class="c-map__cost">{{ 'map.cost' | t }}</span>
+            <label class="c-map__auto" for="map-auto">
+              <input id="map-auto" type="checkbox" [checked]="ui.autoMap()" (change)="ui.setAutoMap($any($event.target).checked)" />
+              {{ 'map.auto' | t }}
+            </label>
+          } @else {
+            <p class="c-map__empty-text">{{ 'map.empty' | t }}</p>
+          }
+        </div>
+      } @else if (loading()) {
+        <p class="c-map__empty-text">{{ 'map.loading' | t }}</p>
+      }
+
+      <!-- On-map editor: positions come from the map's physical coordinates, so the layer and editors stay LTR
+           (a logical inset resolves against the element's own direction); the inputs read their own text direction -->
+      @if (editMode()) {
+        <div class="c-map__layer" dir="ltr">
+          @if (connecting()) {
+            <p class="c-map__connect" role="status" [attr.dir]="dir()">
+              <app-icon name="link" />
+              {{ 'map.connectHint' | t }}
+            </p>
+          }
+          @if (overlay(); as box) {
+            @if (selectedNode(); as node) {
+              <div
+                class="c-map__editor"
+                role="group"
+                [attr.aria-label]="'map.nodeText' | t"
+                [style.inset-inline-start.px]="box.x + box.width / 2"
+                [style.inset-block-start.px]="box.y + box.height / 2"
+                (pointerdown)="$event.stopPropagation()"
+              >
+                <label class="u-visually-hidden" for="map-node-text">{{ 'map.nodeText' | t }}</label>
+                <input
+                  class="c-field__control c-map__editor-input"
+                  id="map-node-text"
+                  type="text"
+                  dir="auto"
+                  autocomplete="off"
+                  [style.min-inline-size.px]="box.width"
+                  [value]="node.label"
+                  (change)="rename(node.id, $event)"
+                  (keydown)="onEditorKey($event)"
+                />
+                <div class="c-map__editor-tools">
+                  <button type="button" class="c-button is-icon is-sm" [attr.aria-label]="'map.addAfter' | t" [title]="'map.addAfter' | t" (click)="addAfter(node.id)">
+                    <app-icon name="plus" />
+                  </button>
+                  <button type="button" class="c-button is-icon is-sm" [attr.aria-pressed]="connecting()" [attr.aria-label]="'map.connect' | t" [title]="'map.connect' | t" (click)="startConnect()">
+                    <app-icon name="link" />
+                  </button>
+                  <button type="button" class="c-button is-icon is-sm is-danger" [attr.aria-label]="'map.deleteNode' | t" [title]="'map.deleteNode' | t" (click)="deleteNode(node.id)">
+                    <app-icon name="trash" />
+                  </button>
+                </div>
+              </div>
+            }
+            @if (!selectedNode() && edge(); as link) {
+              <div
+                class="c-map__editor is-link"
+                role="group"
+                [attr.aria-label]="'map.deleteLink' | t: { from: label(link.from), to: label(link.to) }"
+                [style.inset-inline-start.px]="box.x"
+                [style.inset-block-start.px]="box.y"
+                (pointerdown)="$event.stopPropagation()"
+              >
+                <label class="u-visually-hidden" for="map-edge-text">{{ 'map.linkText' | t }}</label>
+                <input
+                  class="c-field__control c-map__editor-input"
+                  id="map-edge-text"
+                  type="text"
+                  dir="auto"
+                  autocomplete="off"
+                  [placeholder]="'map.linkText' | t"
+                  [value]="link.label"
+                  (change)="relabelEdge(selectedEdge()!, $event)"
+                  (keydown)="onEditorKey($event)"
+                />
+                <button
+                  type="button"
+                  class="c-button is-icon is-sm is-danger"
+                  [attr.aria-label]="'map.deleteLink' | t: { from: label(link.from), to: label(link.to) }"
+                  [title]="'map.deleteLink' | t: { from: label(link.from), to: label(link.to) }"
+                  (click)="deleteEdge(selectedEdge()!)"
+                >
+                  <app-icon name="trash" />
+                </button>
+              </div>
+            }
+          }
+        </div>
+      }
+    </figure>
+</div>

@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+// ITCSS entry: settings and tools emit nothing; the rest go from generic to specific.
+@use './theme/tokens.theme';
+@use './generic/reset.generic';
+@use './elements/elements';
+@use './layout/pane.layout';
+@use './components';
+@use './utilities';

@@ -1,0 +1,34 @@
+@charset "UTF-8";
+
+// Layout shell shared by the sidebar and the workspace.
+@use '../tools' as *;
+
+.l-pane {
+  @include pane;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-block-size: #{px(48)};
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border-block-end: 1px solid var(--pane-line);
+  }
+
+  &__body {
+    @include scroll('block');
+
+    flex: 1;
+    min-block-size: 0;
+    padding: var(--space-4);
+  }
+}

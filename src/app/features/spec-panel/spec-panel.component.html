@@ -1,0 +1,195 @@
+<section class="c-spec" aria-labelledby="spec-title">
+  <h2 class="u-visually-hidden" id="spec-title">{{ 'spec.title' | t }}</h2>
+
+  <form class="c-spec__form" novalidate (submit)="$event.preventDefault(); build()">
+    <div class="c-spec__scroll">
+      <div class="c-spec__top">
+        <p class="c-spec__progress">
+          <span class="c-spec__progress-text">{{ 'spec.progress' | t: { n: answered(), total: total } }}</span>
+          <span class="c-spec__meter" aria-hidden="true">
+            <span class="c-spec__meter-fill" [style.inline-size.%]="(answered() / total) * 100"></span>
+          </span>
+        </p>
+      </div>
+      <p class="u-visually-hidden" id="spec-tab-hint">{{ 'spec.tabHint' | t }}</p>
+      @if (suggesting()) {
+        <p class="c-spec__suggesting">
+          <span class="c-spec__spinner" aria-hidden="true"></span>
+          {{ 'spec.suggesting' | t }}
+        </p>
+      }
+
+      <!-- Questions, from the general idea down to the details -->
+      <ol class="c-spec__steps">
+        <!-- 1. Type -->
+        <li class="c-spec__step is-done">
+          <span class="c-spec__marker" aria-hidden="true"><app-icon name="check" /></span>
+          <fieldset class="c-spec__body" aria-describedby="spec-kind-hint">
+            <legend class="c-spec__question">{{ 'spec.kind' | t }}</legend>
+            <span class="c-field__hint" id="spec-kind-hint">{{ 'spec.kindHint' | t }}</span>
+            <div class="c-spec__kind-list" dir="ltr">
+              @for (kind of kinds; track kind[0]) {
+                <label class="c-spec__kind" [class.is-checked]="store.spec().kind === kind[0]">
+                  <input
+                    class="u-visually-hidden"
+                    type="radio"
+                    name="spec-kind"
+                    [id]="'spec-kind-' + kind[0]"
+                    [value]="kind[0]"
+                    [checked]="store.spec().kind === kind[0]"
+                    (change)="setKind(kind[0])"
+                  />
+                  {{ kind[1] }}
+                </label>
+              }
+            </div>
+          </fieldset>
+        </li>
+
+        <!-- 2. The idea (required) -->
+        <li class="c-spec__step" [class.is-done]="!ideaMissing()" [class.is-invalid]="ideaInvalid()">
+          <span class="c-spec__marker" aria-hidden="true">
+            @if (ideaMissing()) { 2 } @else { <app-icon name="check" /> }
+          </span>
+          <div class="c-spec__body">
+            <div class="c-spec__head">
+              <label class="c-spec__question" for="spec-idea">{{ 'spec.idea' | t }}</label>
+              <span class="c-spec__badge is-required">{{ 'spec.required' | t }}</span>
+            </div>
+            <span class="c-field__hint" id="spec-idea-hint">{{ 'spec.ideaHint' | t }}</span>
+            <textarea
+              class="c-field__control is-area c-spec__idea-input"
+              id="spec-idea"
+              aria-required="true"
+              [attr.dir]="value('idea') ? 'auto' : null"
+              [attr.aria-invalid]="ideaInvalid() ? 'true' : null"
+              [attr.aria-describedby]="ideaInvalid() ? 'spec-idea-hint spec-idea-error spec-tab-hint' : 'spec-idea-hint spec-tab-hint'"
+              [placeholder]="'spec.ideaPh' | t"
+              [value]="value('idea')"
+              (input)="onInput('idea', $event)"
+              (keydown)="onFieldKey('idea', 'spec.ideaPh', $event)"
+              (blur)="ideaTouched.set(true)"
+            ></textarea>
+            <span class="c-spec__tab" aria-hidden="true"><kbd class="c-spec__kbd">Tab</kbd>{{ 'spec.tabChipSample' | t }}</span>
+            <div class="c-spec__suggest">
+              <button type="button" class="c-button is-sm" [disabled]="!canSuggest()" (click)="suggest()">
+                <app-icon name="sparkles" />
+                {{ 'spec.suggest' | t }}
+              </button>
+              <span class="c-spec__suggest-cost">{{ 'spec.suggestCost' | t }}</span>
+            </div>
+            @if (ideaInvalid()) {
+              <span class="c-field__error" id="spec-idea-error" role="alert">{{ 'spec.ideaError' | t }}</span>
+            }
+          </div>
+        </li>
+
+        <!-- 3–7. Optional details -->
+        @for (field of fields; track field.key; let i = $index) {
+          <li class="c-spec__step" [class.is-done]="!!value(field.key).trim()">
+            <span class="c-spec__marker" aria-hidden="true">
+              @if (value(field.key).trim()) { <app-icon name="check" /> } @else { {{ i + 3 }} }
+            </span>
+            <div class="c-spec__body">
+              <div class="c-spec__head">
+                <label class="c-spec__question" [attr.for]="'spec-' + field.key">{{ field.label | t }}</label>
+                <span class="c-spec__badge">{{ 'spec.optional' | t }}</span>
+              </div>
+              <span class="c-field__hint" [id]="'spec-' + field.key + '-hint'">{{ field.hint | t }}</span>
+              @if (field.area) {
+                <textarea
+                  class="c-field__control is-area"
+                  [class.has-suggestion]="hasSuggestion(field.key)"
+                  [id]="'spec-' + field.key"
+                  [attr.dir]="value(field.key) ? 'auto' : null"
+                  [attr.aria-describedby]="'spec-' + field.key + '-hint spec-tab-hint'"
+                  [placeholder]="placeholder(field.key, field.placeholder)"
+                  [value]="value(field.key)"
+                  (input)="onInput(field.key, $event)"
+                  (keydown)="onFieldKey(field.key, field.placeholder, $event)"
+                ></textarea>
+              } @else {
+                <input
+                  class="c-field__control"
+                  type="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  dir="ltr"
+                  [id]="'spec-' + field.key"
+                  [class.has-suggestion]="hasSuggestion(field.key)"
+                  [attr.aria-describedby]="'spec-' + field.key + '-hint spec-tab-hint'"
+                  [placeholder]="placeholder(field.key, field.placeholder)"
+                  [value]="value(field.key)"
+                  (input)="onInput(field.key, $event)"
+                  (keydown)="onFieldKey(field.key, field.placeholder, $event)"
+                />
+              }
+              <span class="c-spec__tab" aria-hidden="true">
+                <kbd class="c-spec__kbd">Tab</kbd>{{ (hasSuggestion(field.key) ? 'spec.tabChip' : 'spec.tabChipSample') | t }}
+              </span>
+            </div>
+          </li>
+        }
+
+        <!-- 8. Reference files -->
+        <li class="c-spec__step" [class.is-done]="referenceCount() > 0">
+          <span class="c-spec__marker" aria-hidden="true">
+            @if (referenceCount()) { <app-icon name="check" /> } @else { {{ fields.length + 3 }} }
+          </span>
+          <div class="c-spec__body">
+            <div class="c-spec__head">
+              <span class="c-spec__question">{{ 'spec.refs' | t }}</span>
+              <span class="c-spec__badge">{{ 'spec.optional' | t }}</span>
+            </div>
+            <span class="c-field__hint">{{ 'spec.refsHint' | t }}</span>
+            <app-drop-zone class="c-spec__drop" inputId="spec-references" [label]="'spec.refsPick' | t" [hint]="'spec.refsDrop' | t" (files)="addReferences($event)" />
+            @if (importNote()) {
+              <span class="c-field__hint">{{ importNote() }}</span>
+            }
+          </div>
+        </li>
+
+        <!-- Answers Claude asked for -->
+        @if (store.spec().clarifications) {
+          <li class="c-spec__step is-done">
+            <span class="c-spec__marker" aria-hidden="true"><app-icon name="help" /></span>
+            <div class="c-spec__body">
+              <label class="c-spec__question" for="spec-clarifications">{{ 'spec.clarifications' | t }}</label>
+              <textarea
+                class="c-field__control is-area"
+                id="spec-clarifications"
+                dir="auto"
+                [value]="value('clarifications')"
+                (input)="onInput('clarifications', $event)"
+              ></textarea>
+            </div>
+          </li>
+        }
+      </ol>
+    </div>
+
+    <!-- Actions -->
+    <div class="c-spec__actions">
+      <button type="submit" class="c-button is-primary is-lg c-spec__build" [disabled]="!agent.canRun()">
+        <app-icon name="sparkles" />
+        {{ (store.files().length ? 'spec.rebuild' : 'spec.build') | t }}
+      </button>
+      <div class="c-spec__secondary">
+        <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="ask()">
+          <app-icon name="help" />
+          {{ 'spec.ask' | t }}
+        </button>
+        <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="drawMap()">
+          <app-icon name="map" />
+          {{ 'spec.map' | t }}
+        </button>
+        <label class="u-visually-hidden" for="spec-tier">{{ 'spec.depth' | t }}</label>
+        <select class="c-field__control c-spec__tier" id="spec-tier" [title]="'spec.depth' | t" (change)="setTier($event)">
+          @for (tier of tiers; track tier.value) {
+            <option [value]="tier.value" [selected]="agent.tier() === tier.value">{{ tier.label | t }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,58 @@
+<section class="l-pane c-workspace" aria-labelledby="workspace-title">
+  <!-- Header with tabs -->
+  <div class="l-pane__head">
+    <h2 class="u-visually-hidden" id="workspace-title">{{ 'ws.title' | t }}</h2>
+    @if (showStart()) {
+      <p class="c-workspace__start-title">{{ 'start.title' | t }}</p>
+    } @else {
+    <div class="c-workspace__tabs" role="tablist" [attr.aria-label]="'ws.views' | t">
+      @for (item of tabs; track item.id; let i = $index) {
+        <button
+          #tabButton
+          type="button"
+          role="tab"
+          class="c-workspace__tab"
+          [id]="'ws-tab-' + item.id"
+          [attr.aria-selected]="tab() === item.id"
+          [attr.aria-controls]="'ws-panel-' + item.id"
+          [attr.tabindex]="tab() === item.id ? 0 : -1"
+          (click)="select(item.id)"
+          (keydown)="onTabKey($event, i)"
+        >
+          <app-icon [name]="item.icon" />
+          {{ item.label | t }}
+          @if (item.id === 'files') {
+            <span class="c-workspace__badge">{{ store.files().length }}</span>
+          }
+        </button>
+      }
+    </div>
+    }
+  </div>
+
+  @if (showStart()) {
+    <app-start-panel />
+  } @else {
+  <!-- Files -->
+  <div
+    class="c-workspace__panel c-workspace__files"
+    role="tabpanel"
+    id="ws-panel-files"
+    aria-labelledby="ws-tab-files"
+    [hidden]="tab() !== 'files'"
+  >
+    <app-file-tree class="c-workspace__tree" />
+    <app-file-viewer class="c-workspace__viewer" />
+  </div>
+
+  <!-- Map -->
+  <div class="c-workspace__panel" role="tabpanel" id="ws-panel-map" aria-labelledby="ws-tab-map" [hidden]="tab() !== 'map'">
+    <app-idea-map />
+  </div>
+
+  <!-- Explain -->
+  <div class="c-workspace__panel" role="tabpanel" id="ws-panel-explain" aria-labelledby="ws-tab-explain" [hidden]="tab() !== 'explain'">
+    <app-explain-panel />
+  </div>
+  }
+</section>

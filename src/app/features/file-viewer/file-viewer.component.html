@@ -1,0 +1,132 @@
+@if (file(); as current) {
+  <article class="c-viewer" [attr.aria-labelledby]="renaming() ? null : 'viewer-path'" [attr.aria-label]="renaming() ? current.path : null">
+    <!-- File header -->
+    <header class="c-viewer__head">
+      @if (renaming()) {
+        <form class="c-viewer__rename" (submit)="submitRename($event)" (keydown.escape)="closeRename()">
+          <label class="u-visually-hidden" for="rename-input">{{ 'viewer.renameLabel' | t }}</label>
+          <input
+            class="c-field__control c-viewer__rename-input"
+            id="rename-input"
+            name="rename-input"
+            dir="ltr"
+            spellcheck="false"
+            autocomplete="off"
+            [value]="current.path"
+            [attr.aria-invalid]="renameError() ? 'true' : null"
+            [attr.aria-describedby]="renameError() ? 'rename-error' : null"
+          />
+          <button type="submit" class="c-button is-sm is-primary">{{ 'common.save' | t }}</button>
+          <button type="button" class="c-button is-sm is-quiet" (click)="closeRename()">{{ 'common.cancel' | t }}</button>
+          @if (renameError()) {
+            <span class="c-field__error" id="rename-error" role="alert">{{ renameError() }}</span>
+          }
+        </form>
+      } @else {
+        <h3 class="c-viewer__path" id="viewer-path" dir="ltr">{{ current.path }}</h3>
+      }
+
+      <div class="c-viewer__tools">
+        @if (isMarkdown()) {
+          <div class="c-viewer__switch" role="group" [attr.aria-label]="'viewer.view' | t">
+            <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="mode() === 'preview'" (click)="mode.set('preview')">
+              <app-icon name="eye" />
+              {{ 'viewer.preview' | t }}
+            </button>
+            <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="mode() === 'edit'" (click)="mode.set('edit')">
+              <app-icon name="code" />
+              {{ 'viewer.edit' | t }}
+            </button>
+          </div>
+        }
+        <button type="button" class="c-button is-sm" [title]="'viewer.askHint' | t" (click)="askAboutSelection()">
+          <app-icon name="wand" />
+          {{ 'viewer.ask' | t }}
+        </button>
+        <button #renameButton type="button" class="c-button is-sm is-icon is-quiet" [attr.aria-label]="'viewer.rename' | t" [title]="'viewer.rename' | t" (click)="startRename()">
+          <app-icon name="rename" />
+        </button>
+        @if (!confirmingDelete()) {
+          <button #deleteButton type="button" class="c-button is-sm is-icon is-quiet is-danger" [attr.aria-label]="'viewer.delete' | t" [title]="'viewer.delete' | t" (click)="askDelete()">
+            <app-icon name="trash" />
+          </button>
+        }
+      </div>
+    </header>
+
+    @if (confirmingDelete()) {
+      <div class="c-viewer__confirm" role="group" aria-labelledby="viewer-delete-ask" (keydown.escape)="cancelDelete()">
+        <span id="viewer-delete-ask">{{ 'viewer.deleteAsk' | t: { path: current.path } }}</span>
+        <div class="c-viewer__confirm-actions">
+          <button type="button" class="c-button is-sm is-danger" (click)="deleteFile()">{{ 'common.delete' | t }}</button>
+          <button #cancelDeleteButton type="button" class="c-button is-sm is-quiet" (click)="cancelDelete()">{{ 'common.cancel' | t }}</button>
+        </div>
+      </div>
+    }
+
+    <!-- Body -->
+    @if (agent.running()) {
+      <div class="c-viewer__progress" aria-hidden="true"></div>
+    }
+    @if (effectiveMode() === 'preview') {
+      <div class="c-viewer__preview" [attr.aria-busy]="agent.running()">
+        <div class="c-viewer__page">
+          @if (metaFields(); as fields) {
+            <!-- The card reads in the file's own direction, like the text under it -->
+            <div class="c-viewer__meta-card" role="group" [attr.dir]="contentDir()" [attr.aria-label]="'viewer.frontmatter' | t">
+              <dl class="c-viewer__meta-list">
+                @for (field of fields; track field.key) {
+                  <div class="c-viewer__meta-row" [class.is-name]="field.key === 'name'">
+                    <dt class="c-viewer__meta-key">{{ metaLabel(field.key) }}</dt>
+                    <dd class="c-viewer__meta-value" [attr.dir]="field.key === 'name' ? 'ltr' : 'auto'">{{ field.value }}</dd>
+                  </div>
+                }
+              </dl>
+            </div>
+          } @else if (frontmatter()) {
+            <pre class="c-viewer__frontmatter" dir="ltr" role="group" [attr.aria-label]="'viewer.frontmatter' | t">{{ frontmatter() }}</pre>
+          }
+          <div class="c-viewer__markdown c-markdown" dir="auto" [innerHTML]="preview()"></div>
+        </div>
+      </div>
+    } @else {
+      <div class="c-viewer__editor-wrap">
+        <label class="u-visually-hidden" for="file-editor">{{ 'viewer.contents' | t: { path: current.path } }}</label>
+        <textarea
+          #editor
+          class="c-viewer__editor"
+          id="file-editor"
+          dir="ltr"
+          spellcheck="false"
+          aria-describedby="file-editor-help"
+          [value]="current.content"
+          (input)="onEdit($event)"
+          (keydown)="onKeydown($event)"
+          (keydown.escape)="onEscape($event)"
+          (focus)="onEditorFocus($event)"
+        ></textarea>
+        <p class="c-viewer__meta">
+          {{ 'viewer.meta' | t: { lines: lineCount(), chars: current.content.length } }}
+          <span class="u-visually-hidden" id="file-editor-help">{{ 'viewer.editorHelp' | t }}</span>
+        </p>
+      </div>
+    }
+  </article>
+} @else if (agent.running()) {
+  <!-- Claude is working and no file is open yet: show progress where the file will appear -->
+  <div class="c-viewer is-empty is-busy" role="status">
+    <span class="c-viewer__spinner" aria-hidden="true"></span>
+    <p class="c-viewer__empty-title">{{ 'viewer.working' | t }}</p>
+    <p class="c-viewer__empty-text" dir="auto">{{ lastStep() || ('viewer.workingHint' | t) }}</p>
+    <div class="c-viewer__skeleton" aria-hidden="true">
+      <span class="c-viewer__skeleton-line"></span>
+      <span class="c-viewer__skeleton-line"></span>
+      <span class="c-viewer__skeleton-line"></span>
+    </div>
+  </div>
+} @else {
+  <div class="c-viewer is-empty">
+    <app-icon name="file" />
+    <p class="c-viewer__empty-text">{{ 'viewer.empty' | t }}</p>
+  </div>
+}

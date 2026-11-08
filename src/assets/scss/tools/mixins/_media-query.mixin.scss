@@ -1,0 +1,33 @@
+@charset "UTF-8";
+
+// @include mq(min, w, md) { ... }  ->  @media only screen and (min-width: 991px)
+
+@use 'sass:map';
+@use '../../settings/breakpoints.settings' as var;
+@use '../functions/is-in-list.function' as Func;
+
+@mixin mq($type: min, $dimension: w, $breakpoint-name: md) {
+  @if not Func.is-in-list((min, max), $type) {
+    @error "The type parameter of mq mixin must be one of: (min, max).";
+  }
+
+  @if not Func.is-in-list((width, w, height, h), $dimension) {
+    @error "The dimension parameter of mq mixin must be one of: (width, w, height, h).";
+  }
+
+  @if not map.has-key(var.$breakpoints, $breakpoint-name) {
+    @error "Please, Enter a valid breakpoint. #{$breakpoint-name} does not exist in (#{var.$breakpoints})";
+  }
+
+  $actual-dimension: map.get(var.$breakpoints, $breakpoint-name);
+
+  @if $type == max {
+    $actual-dimension: $actual-dimension - 1px;
+  }
+
+  $feature: if($dimension == width or $dimension == w, width, height);
+
+  @media only screen and (#{$type}-#{$feature}: #{$actual-dimension}) {
+    @content;
+  }
+}

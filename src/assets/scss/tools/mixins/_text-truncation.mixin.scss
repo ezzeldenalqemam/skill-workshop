@@ -1,0 +1,21 @@
+@charset "UTF-8";
+
+@use 'sass:meta';
+
+@mixin cut-text($lines: 1) {
+  @if meta.type-of($lines) != number or $lines < 1 {
+    @error "The lines parameter of cut-text mixin must be a number >= 1.";
+  }
+
+  overflow: hidden;
+
+  @if $lines == 1 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $lines;
+    line-clamp: $lines;
+  }
+}

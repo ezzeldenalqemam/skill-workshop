@@ -1,0 +1,26 @@
+<dialog
+  #dialog
+  class="c-dialog"
+  [attr.aria-labelledby]="dialogId() + '-title'"
+  [attr.aria-describedby]="dialogId() + '-text'"
+  (cancel)="onCancelEvent($event)"
+  (close)="onClosed()"
+  (click)="onClick($event)"
+>
+  <div class="c-dialog__panel">
+    <div class="c-dialog__body">
+      <span class="c-dialog__icon" aria-hidden="true"><app-icon name="alert" /></span>
+      <div class="c-dialog__copy">
+        <h2 class="c-dialog__title" [id]="dialogId() + '-title'">{{ heading() }}</h2>
+        <p class="c-dialog__text" [id]="dialogId() + '-text'">{{ message() }}</p>
+      </div>
+    </div>
+    <div class="c-dialog__actions">
+      <button #cancelButton type="button" class="c-button" (click)="cancel()">{{ 'common.cancel' | t }}</button>
+      <button type="button" class="c-button is-danger c-dialog__confirm" (click)="confirm()">
+        <app-icon name="trash" />
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</dialog>

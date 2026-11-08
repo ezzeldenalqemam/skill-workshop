@@ -1,0 +1,18 @@
+<label
+  class="c-drop"
+  [class.is-dragging]="dragging()"
+  [class.is-compact]="compact()"
+  [attr.for]="inputId()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="dragging.set(false)"
+  (drop)="onDrop($event)"
+>
+  <input class="c-drop__input u-visually-hidden" type="file" multiple [id]="inputId()" (change)="onPick($event)" />
+  <app-icon name="upload" />
+  <span class="c-drop__text">
+    <span class="c-drop__label">{{ label() }}</span>
+    @if (hint()) {
+      <span class="c-drop__hint">{{ hint() }}</span>
+    }
+  </span>
+</label>

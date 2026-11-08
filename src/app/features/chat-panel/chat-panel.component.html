@@ -1,0 +1,149 @@
+<section class="c-chat" aria-labelledby="chat-title">
+  <h2 class="u-visually-hidden" id="chat-title">{{ 'chat.title' | t }}</h2>
+
+  <!-- Availability -->
+  @if (agent.availability() === 'unavailable') {
+    <p class="c-chat__notice is-warning" role="status">
+      <app-icon name="alert" />
+      {{ 'chat.unavailable' | t }}
+    </p>
+  } @else if (agent.availability() === 'denied') {
+    <p class="c-chat__notice is-danger" role="status">
+      <app-icon name="alert" />
+      {{ 'chat.denied' | t }}
+    </p>
+  } @else if (agent.availability() === 'ready' && !agent.toolsSupported()) {
+    <p class="c-chat__notice" role="status">{{ 'chat.noTools' | t }}</p>
+  }
+
+  <!-- Messages -->
+  <!-- Focusable so keyboard users can scroll a long conversation -->
+  <div class="c-chat__log" #log tabindex="0" role="region" [attr.aria-label]="'chat.list' | t">
+    <ol class="c-chat__list">
+      @for (message of messages(); track message.id) {
+        <li class="c-chat__msg" [class.is-user]="message.role === 'user'" [class.is-error]="message.status === 'error'">
+          <span class="u-visually-hidden">{{ (message.role === 'user' ? 'chat.you' : 'chat.claude') | t }}</span>
+
+          @if (message.activity?.length) {
+            <ul class="c-chat__activity" [attr.aria-label]="'chat.did' | t">
+              @for (entry of message.activity; track $index) {
+                <li class="c-chip c-chat__act" dir="auto">
+                  <app-icon [name]="activityIcon(entry)" />
+                  {{ activityText(entry) }}
+                </li>
+              }
+            </ul>
+          }
+
+          @if (message.textKey) {
+            <p class="c-chat__text" dir="auto">{{ message.textKey | t: message.textParams }}</p>
+          } @else if (message.text) {
+            <p class="c-chat__text" dir="auto">{{ message.text }}</p>
+          }
+
+          @if (message.brief?.length) {
+            <dl class="c-chat__brief">
+              @for (item of message.brief; track item.key) {
+                <div class="c-chat__brief-row">
+                  <dt class="c-chat__brief-q">{{ item.key | t }}</dt>
+                  <dd class="c-chat__brief-a" dir="auto">{{ item.value }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          @if (statusKey(message); as key) {
+            <p class="c-chat__status" [class.is-live]="message.status === 'thinking' || message.status === 'streaming'">
+              @if (message.status === 'thinking' || message.status === 'streaming') {
+                <span class="c-chat__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+              }
+              {{ key | t }}
+            </p>
+          }
+
+          <!-- Clarifying questions -->
+          @if (message.questions?.length) {
+            <form class="c-chat__questions" (submit)="submitAnswers(message, $event)">
+              @for (q of message.questions; track q.id) {
+                <div class="c-field">
+                  <label class="c-field__label" dir="auto" [attr.for]="message.id + '-' + q.id">{{ q.question }}</label>
+                  <textarea
+                    class="c-field__control is-area c-chat__answer"
+                    dir="auto"
+                    [id]="message.id + '-' + q.id"
+                    [placeholder]="q.hint ?? ''"
+                    [value]="q.answer ?? ''"
+                    [disabled]="message.questionsAnswered"
+                    (input)="answer(message, q, $event)"
+                  ></textarea>
+                </div>
+              }
+              @if (!message.questionsAnswered) {
+                <button type="submit" class="c-button is-sm is-primary">{{ 'chat.submitAnswers' | t }}</button>
+              } @else {
+                <p class="c-chip is-success">
+                  <app-icon name="check" />
+                  {{ 'chat.answersAdded' | t }}
+                </p>
+              }
+            </form>
+          }
+        </li>
+      }
+    </ol>
+  </div>
+
+  <!-- Composer -->
+  <form class="c-chat__composer" (submit)="send($event)">
+    @if (composer.focus(); as focus) {
+      <div class="c-chat__focus">
+        <span class="c-chat__focus-text">
+          <app-icon name="file" />
+          <span dir="ltr" class="c-chat__focus-path">{{ focus.path }}</span>
+          @if (focus.selection) {
+            <span>{{ 'chat.selection' | t: { n: focus.selection.length } }}</span>
+          }
+        </span>
+        <button type="button" class="c-button is-icon is-sm is-quiet" [attr.aria-label]="'chat.removeFocus' | t" (click)="clearFocus()">
+          <app-icon name="close" />
+        </button>
+      </div>
+    }
+    <label class="u-visually-hidden" for="chat-input">{{ 'chat.input' | t }}</label>
+    <textarea
+      #composerInput
+      class="c-field__control is-area c-chat__input"
+      id="chat-input"
+      dir="auto"
+      aria-describedby="chat-input-hint"
+      [placeholder]="'chat.inputPh' | t"
+      [value]="composer.draft()"
+      (input)="onDraft($event)"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    <div class="c-chat__bar">
+      <button
+        type="button"
+        class="c-button is-sm is-quiet"
+        [disabled]="!store.canUndo() || agent.running()"
+        [title]="store.canUndo() ? ('chat.undoHint' | t: { label: store.undoStack().at(-1)?.label ?? '' }) : ('chat.undoNone' | t)"
+        (click)="store.undo()"
+      >
+        <app-icon name="undo" [flipRtl]="true" />
+        {{ 'chat.undo' | t }}
+      </button>
+      <span class="c-chat__hint" id="chat-input-hint">{{ 'chat.hint' | t }}</span>
+      @if (agent.running()) {
+        <button type="button" class="c-button is-danger" (click)="agent.stop()">
+          <app-icon name="stop" />
+          {{ 'chat.stop' | t }}
+        </button>
+      } @else {
+        <button type="submit" class="c-button is-primary" [disabled]="!canSend()">
+          <app-icon name="send" [flipRtl]="true" />
+          {{ 'chat.send' | t }}
+        </button>
+      }
+    </div>
+  </form>
+</section>

@@ -1,0 +1,25 @@
+@charset "UTF-8";
+
+@use '../functions/is-in-list.function' as Func;
+
+// overflow-x/-y are axis (not side) properties, so they stay RTL-safe; the logical
+// overflow-block/-inline follow them and win wherever the browser supports them.
+@mixin scroll($direction: 'both') {
+  @if not Func.is-in-list(('both', 'block', 'inline'), $direction) {
+    @error "The direction parameter of scroll mixin must be one of: (both, block, inline).";
+  }
+
+  @if $direction == 'both' {
+    overflow: auto;
+  } @else if $direction == 'block' {
+    overflow-y: auto;
+    overflow-block: auto;
+  } @else {
+    overflow-x: auto;
+    overflow-inline: auto;
+  }
+
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}

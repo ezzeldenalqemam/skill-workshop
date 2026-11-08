@@ -1,0 +1,39 @@
+<nav class="l-tabs" [attr.aria-label]="'tabs.label' | t">
+  <ul class="l-tabs__list">
+    @for (tab of tabs(); track tab.id; let i = $index) {
+      <li class="l-tabs__item" [class.is-active]="tab.active" [class.is-draft]="tab.draft">
+        <button
+          type="button"
+          class="l-tabs__tab"
+          [attr.aria-current]="tab.active ? 'page' : null"
+          [title]="tab.name + ' · ' + kindLabels[tab.kind]"
+          (click)="open(tab)"
+          (auxclick)="onAux($event, tab, i)"
+        >
+          <app-icon [name]="tab.draft ? 'plus' : 'file'" />
+          <span class="l-tabs__name" dir="auto">{{ tab.name }}</span>
+        </button>
+        @if (!tab.draft || store.openTabs().length) {
+          <button
+            type="button"
+            class="l-tabs__close"
+            [attr.aria-label]="'tabs.close' | t: { name: tab.name }"
+            [title]="'tabs.close' | t: { name: tab.name }"
+            (click)="close(tab, i)"
+          >
+            <app-icon name="close" />
+          </button>
+        }
+      </li>
+    }
+  </ul>
+  <button
+    type="button"
+    class="c-button is-icon is-sm is-quiet l-tabs__new"
+    [attr.aria-label]="'tabs.new' | t"
+    [title]="'tabs.new' | t"
+    (click)="store.newProject()"
+  >
+    <app-icon name="plus" />
+  </button>
+</nav>

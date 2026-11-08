@@ -1,0 +1,119 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: flex;
+  flex: 1;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.c-workspace {
+  container: workspace / inline-size;
+
+  // Underlined tabs: quieter than pills, and the accent marks only the current one.
+  &__tabs {
+    display: flex;
+    gap: var(--space-4);
+    align-self: stretch;
+  }
+
+  &__tab {
+    --icon-size: #{px(16)};
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-inline: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    transition: color var(--dur) var(--ease);
+
+    @include focus-ring(-2);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      inset-block-end: calc(var(--space-2) * -1 - 1px);
+      block-size: 2px;
+      border-radius: 2px;
+      background: transparent;
+    }
+
+    &:hover {
+      color: var(--text);
+    }
+
+    &[aria-selected='true'] {
+      color: var(--text);
+      font-weight: 600;
+
+      &::after {
+        background: var(--accent);
+      }
+    }
+  }
+
+  &__badge {
+    padding-inline: #{px(6)};
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__panel {
+    @include scroll('block');
+
+    display: flex;
+    flex: 1;
+    min-block-size: 0;
+    padding: var(--space-3);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  // The tree sits on the physical left in both languages, next to the file it opens.
+  &__files {
+    display: grid;
+    grid-template-columns: minmax(#{px(180)}, #{px(240)}) minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: stretch;
+
+    &:dir(rtl) {
+      grid-template-columns: minmax(0, 1fr) minmax(#{px(180)}, #{px(240)});
+    }
+  }
+
+  &__tree {
+    @include scroll('block');
+
+    min-block-size: 0;
+
+    &:dir(rtl) {
+      order: 2;
+    }
+  }
+
+  @container workspace (max-width: #{px(640)}) {
+    &__files,
+    &__files:dir(rtl) {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(#{px(360)}, 1fr);
+    }
+
+    &__tree:dir(rtl) {
+      order: 0;
+    }
+
+    &__tree {
+      max-block-size: #{px(220)};
+    }
+  }
+}

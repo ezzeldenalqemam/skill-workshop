@@ -1,0 +1,145 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: contents;
+}
+
+.c-appearance {
+  @include overlay;
+
+  position: fixed;
+  inline-size: min(#{px(320)}, calc(100vw - #{px(16)}));
+  max-block-size: calc(100dvh - #{px(80)});
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--text);
+  overflow: auto;
+
+  &:popover-open {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    font-size: var(--fs-md);
+  }
+
+  &__group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  // Starting over sits apart from the look settings, below a rule.
+  &__danger {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-1);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line);
+  }
+
+  &__hint {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+
+  &__legend {
+    margin-block-end: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+  }
+
+  &__accents {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  &__accent,
+  &__segment {
+    cursor: pointer;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    transition: border-color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+
+    &:hover {
+      border-color: var(--line-strong);
+    }
+
+    &:has(:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    &.is-checked {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+  }
+
+  &__accent {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  &__name {
+    font-size: var(--fs-xs);
+    font-weight: 500;
+  }
+
+  &__segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-1);
+  }
+
+  &__segment {
+    display: grid;
+    place-items: center;
+    min-block-size: #{px(32)};
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+
+  &__swatch {
+    flex-shrink: 0;
+    inline-size: #{px(18)};
+    block-size: #{px(18)};
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--glass-line);
+
+    &[data-swatch='navy'] {
+      background: var(--swatch-navy);
+    }
+
+    &[data-swatch='green'] {
+      background: var(--swatch-green);
+    }
+
+    &[data-swatch='petrol'] {
+      background: var(--swatch-petrol);
+    }
+
+    &[data-swatch='burgundy'] {
+      background: var(--swatch-burgundy);
+    }
+
+    &[data-swatch='bronze'] {
+      background: var(--swatch-bronze);
+    }
+
+    &[data-swatch='slate'] {
+      background: var(--swatch-slate);
+    }
+  }
+}
