@@ -81,10 +81,10 @@ Tell the user, in a few short lines:
 
 ### 6. Local fallback (no Artifact tool, or the user asked to run it locally)
 
-In `<folder>`, start the dev server: `npm start`. Use the app's preview or browser tools when you have them; otherwise run it as a background process. Then open:
+In `<folder>`, start the dev server: `npm start`. It always runs on port **38291**, a port kept for Skill Workshop alone; never move it to another port. If 38291 is busy, tell the user which program holds it (on Windows: `Get-NetTCPConnection -LocalPort 38291`) and stop. Use the app's preview or browser tools when you have them; otherwise run it as a background process. Then open:
 
 ```
-http://localhost:4200/?mock-claude
+http://localhost:38291/?mock-claude
 ```
 
 Tell the user plainly that locally the Claude buttons use a mock with fixed replies. Real Claude only works in the published copy on claude.ai. Stop the dev server when they are done, or tell them how to stop it.

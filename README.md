@@ -85,7 +85,9 @@ npm ci
 npm start
 ```
 
-Then open http://localhost:4200/?mock-claude
+Then open http://localhost:38291/?mock-claude
+
+The dev server always uses port **38291**, set in `angular.json`. It is an uncommon port, outside the range Windows hands out to programs, so it stays clear of other apps.
 
 Locally, Claude's buttons talk to a mock (`src/dev/claude-mock.js`) that returns fixed replies. Real Claude only answers when the page is published as an Artifact on claude.ai.
 
