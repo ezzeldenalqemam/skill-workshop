@@ -3,7 +3,7 @@
   <app-icon name="settings" />
 </button>
 
-<!-- Settings: language, appearance, and starting over -->
+<!-- Settings: language and appearance -->
 <div id="appearance-menu" class="c-appearance" role="dialog" aria-labelledby="appearance-menu-title" [appAnchoredPopover]="toggle">
   <div class="c-appearance__head">
     <h2 class="c-appearance__title" id="appearance-menu-title">{{ 'look.title' | t }}</h2>
@@ -73,11 +73,4 @@
     </div>
   </fieldset>
 
-  <div class="c-appearance__danger">
-    <button type="button" class="c-button is-sm is-quiet is-danger" popovertarget="appearance-menu" popovertargetaction="hide" (click)="resetRequested.emit()">
-      <app-icon name="refresh" />
-      {{ 'header.reset' | t }}
-    </button>
-    <span class="c-appearance__hint">{{ 'header.resetHint' | t }}</span>
-  </div>
 </div>

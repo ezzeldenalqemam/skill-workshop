@@ -1,0 +1,76 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: contents;
+}
+
+.c-refresh {
+  @include overlay;
+
+  position: fixed;
+  inline-size: min(#{px(300)}, calc(100vw - #{px(16)}));
+  margin: 0;
+  padding: var(--space-2);
+  color: var(--text);
+
+  &:popover-open {
+    display: grid;
+    gap: #{px(2)};
+  }
+
+  &__title {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  &__item {
+    --icon-size: #{px(16)};
+
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-2);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text);
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--surface-2);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+    }
+
+    &.is-danger {
+      color: var(--danger);
+
+      &:hover {
+        background: var(--danger-soft);
+      }
+    }
+  }
+
+  &__text {
+    display: grid;
+    gap: #{px(2)};
+  }
+
+  &__label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+  }
+
+  &__hint {
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+}

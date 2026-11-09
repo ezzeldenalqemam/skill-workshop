@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { Lang } from '../../core/i18n/messages';
 import { TPipe } from '../../core/i18n/t.pipe';
@@ -13,7 +13,7 @@ import { ClaudeAgentService } from '../../core/services/claude-agent.service';
 import { IconComponent } from '../icon/icon.component';
 import { AnchoredPopoverDirective } from '../popover/anchored-popover.directive';
 
-/** One settings menu for the header: interface language, colour mode, accent, and starting over. */
+/** One settings menu for the header: interface language, colour mode and accent. */
 @Component({
   selector: 'app-appearance-menu',
   imports: [IconComponent, AnchoredPopoverDirective, TPipe],
@@ -32,7 +32,6 @@ export class AppearanceMenuComponent {
     { value: 'ar', label: 'العربية' },
     { value: 'en', label: 'English' },
   ];
-  readonly resetRequested = output<void>();
 
   setMode(value: ColorMode): void {
     this.appearance.mode.set(value);

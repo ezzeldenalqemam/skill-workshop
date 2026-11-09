@@ -16,12 +16,13 @@ import { AppHeaderComponent } from './layout/app-header/app-header.component';
 import { ProjectTabsComponent } from './layout/project-tabs/project-tabs.component';
 import { IconComponent } from './shared/icon/icon.component';
 import { ReadAloudPlayerComponent } from './shared/read-aloud-player/read-aloud-player.component';
+import { TooltipHostComponent } from './shared/tooltip/tooltip-host.component';
 
 type PhoneButton = 'spec' | 'work' | 'chat';
 
 @Component({
   selector: 'app-root',
-  imports: [AppHeaderComponent, ProjectTabsComponent, SpecPanelComponent, WorkspaceComponent, ChatPanelComponent, ReadAloudPlayerComponent, IconComponent, TPipe],
+  imports: [AppHeaderComponent, ProjectTabsComponent, SpecPanelComponent, WorkspaceComponent, ChatPanelComponent, ReadAloudPlayerComponent, TooltipHostComponent, IconComponent, TPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

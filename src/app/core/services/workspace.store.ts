@@ -121,6 +121,23 @@ export class WorkspaceStore {
     void this.refreshLibrary();
   }
 
+  /**
+   * Reads everything again from storage: the project list, the saved skills, and the open project
+   * when a newer copy was saved elsewhere (another tab or device). Unsaved edits are saved first.
+   */
+  async refresh(): Promise<void> {
+    this.flushSave();
+    const list = await this.persistence.list();
+    this.projects.set(list);
+    const known = new Set(list.map((p) => p.id));
+    this.openTabs.update((tabs) => tabs.filter((id) => known.has(id) || id === this.project().id));
+    await this.refreshLibrary();
+    const current = this.project();
+    if (current.isDraft || !known.has(current.id)) return;
+    const stored = await this.persistence.load(current.id);
+    if (stored && stored.updatedAt > current.updatedAt) this.setProject(stored);
+  }
+
   async refreshLibrary(): Promise<void> {
     this.library.set(await this.persistence.listLibrary());
   }

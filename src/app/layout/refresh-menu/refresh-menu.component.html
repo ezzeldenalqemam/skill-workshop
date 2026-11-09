@@ -1,0 +1,31 @@
+<button
+  #toggle
+  type="button"
+  class="c-button is-icon is-quiet"
+  popovertarget="refresh-menu"
+  aria-haspopup="dialog"
+  [attr.aria-label]="'refresh.title' | t"
+  [title]="'refresh.title' | t"
+>
+  <app-icon name="refresh" />
+</button>
+
+<div #panel id="refresh-menu" class="c-refresh" role="dialog" aria-labelledby="refresh-menu-title" [appAnchoredPopover]="toggle" (toggle)="onToggle($event, toggle)">
+  <h2 class="c-refresh__title" id="refresh-menu-title">{{ 'refresh.title' | t }}</h2>
+
+  <button type="button" class="c-refresh__item" [attr.aria-disabled]="busy() ? 'true' : null" aria-describedby="refresh-now-hint" (click)="refresh(toggle)">
+    <app-icon name="refresh" />
+    <span class="c-refresh__text">
+      <span class="c-refresh__label">{{ (busy() ? 'refresh.working' : 'refresh.now') | t }}</span>
+      <span class="c-refresh__hint" id="refresh-now-hint">{{ 'refresh.nowHint' | t }}</span>
+    </span>
+  </button>
+
+  <button type="button" class="c-refresh__item is-danger" aria-describedby="refresh-reset-hint" (click)="startOver()">
+    <app-icon name="trash" />
+    <span class="c-refresh__text">
+      <span class="c-refresh__label">{{ 'header.reset' | t }}</span>
+      <span class="c-refresh__hint" id="refresh-reset-hint">{{ 'header.resetHint' | t }}</span>
+    </span>
+  </button>
+</div>

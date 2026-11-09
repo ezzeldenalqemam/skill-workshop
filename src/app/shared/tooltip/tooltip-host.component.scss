@@ -1,0 +1,50 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: contents;
+}
+
+// Placed from the control's on-screen box; the script sets the logical insets for the page direction.
+.c-tip {
+  position: fixed;
+  z-index: 60;
+  max-inline-size: min(#{px(280)}, calc(100vw - #{px(8)}));
+  padding-block: #{px(5)};
+  padding-inline: var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: var(--overlay-shadow);
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 #{px(-2)};
+  transition:
+    opacity var(--dur) var(--ease),
+    translate var(--dur) var(--ease),
+    visibility 0s linear var(--dur);
+
+  &[data-side='above'] {
+    translate: 0 #{px(2)};
+  }
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    transition:
+      opacity var(--dur) var(--ease),
+      translate var(--dur) var(--ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+
+  :root[data-motion='reduced'] & {
+    transition: none;
+  }
+}

@@ -209,6 +209,13 @@ export class LocalSkillsService {
 
   // ---- internals ------------------------------------------------------------
 
+  /** Reads the skills folder again and checks the open project against its files. */
+  async recheck(): Promise<void> {
+    if (this.state() === 'none') await this.init();
+    else await this.refresh();
+    if (this.store.project().localSkill) await this.compareWithDisk();
+  }
+
   private async compareWithDisk(): Promise<void> {
     const project = this.store.project();
     if (!project.localSkill || !this.available()) return;

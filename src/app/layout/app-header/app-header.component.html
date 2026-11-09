@@ -65,7 +65,8 @@
       <span class="l-header__label">{{ 'header.open' | t }}</span>
     </label>
 
-    <app-appearance-menu (resetRequested)="resetDialog.open()" />
+    <app-refresh-menu (resetRequested)="resetDialog.open()" />
+    <app-appearance-menu />
     <app-accessibility-panel />
 
     @if (persistence.libraryAvailable()) {

@@ -15,10 +15,11 @@ import { focusAfterRender } from '../../shared/focus/focus-after-render';
 import { IconComponent } from '../../shared/icon/icon.component';
 import { InstallDialogComponent } from '../../shared/install-dialog/install-dialog.component';
 import { ProjectPickerComponent } from '../project-picker/project-picker.component';
+import { RefreshMenuComponent } from '../refresh-menu/refresh-menu.component';
 
 @Component({
   selector: 'app-header',
-  imports: [IconComponent, AppearanceMenuComponent, AccessibilityPanelComponent, ConfirmDialogComponent, InstallDialogComponent, ProjectPickerComponent, TPipe],
+  imports: [IconComponent, AppearanceMenuComponent, AccessibilityPanelComponent, ConfirmDialogComponent, InstallDialogComponent, ProjectPickerComponent, RefreshMenuComponent, TPipe],
   templateUrl: './app-header.component.html',
   styleUrl: './app-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
