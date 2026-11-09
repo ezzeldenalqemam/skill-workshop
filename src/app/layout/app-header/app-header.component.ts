@@ -2,13 +2,11 @@ import { ChangeDetectionStrategy, Component, ElementRef, Injector, computed, inj
 import { I18nService } from '../../core/i18n/i18n.service';
 import { MessageKey } from '../../core/i18n/messages';
 import { TPipe } from '../../core/i18n/t.pipe';
-import { KIND_LABELS, LibraryOrigin } from '../../core/models/project.model';
 import { AnnouncerService } from '../../core/services/announcer.service';
 import { ClaudeAgentService } from '../../core/services/claude-agent.service';
 import { ImportFlowService } from '../../core/services/import-flow.service';
 import { LocalSkillsService } from '../../core/services/local-skills.service';
 import { PersistenceService } from '../../core/services/persistence.service';
-import { UiStateService } from '../../core/services/ui-state.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
 import { AccessibilityPanelComponent } from '../../shared/accessibility-panel/accessibility-panel.component';
 import { AppearanceMenuComponent } from '../../shared/appearance-menu/appearance-menu.component';
@@ -16,10 +14,11 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
 import { focusAfterRender } from '../../shared/focus/focus-after-render';
 import { IconComponent } from '../../shared/icon/icon.component';
 import { InstallDialogComponent } from '../../shared/install-dialog/install-dialog.component';
+import { ProjectPickerComponent } from '../project-picker/project-picker.component';
 
 @Component({
   selector: 'app-header',
-  imports: [IconComponent, AppearanceMenuComponent, AccessibilityPanelComponent, ConfirmDialogComponent, InstallDialogComponent, TPipe],
+  imports: [IconComponent, AppearanceMenuComponent, AccessibilityPanelComponent, ConfirmDialogComponent, InstallDialogComponent, ProjectPickerComponent, TPipe],
   templateUrl: './app-header.component.html',
   styleUrl: './app-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,26 +29,15 @@ export class AppHeaderComponent {
   readonly persistence = inject(PersistenceService);
   readonly i18n = inject(I18nService);
   readonly local = inject(LocalSkillsService);
-  private readonly ui = inject(UiStateService);
   private readonly importFlow = inject(ImportFlowService);
   private readonly announcer = inject(AnnouncerService);
 
-  readonly kindLabels = KIND_LABELS;
-  readonly originLabels: Record<LibraryOrigin, MessageKey> = { code: 'library.code', claude: 'library.claude', workshop: 'library.workshop' };
   readonly savingSkill = signal(false);
   readonly note = signal<string | null>(null);
   readonly confirmingDelete = signal(false);
   private readonly injector = inject(Injector);
   private readonly deleteButton = viewChild<ElementRef<HTMLButtonElement>>('deleteButton');
   private readonly cancelDelete = viewChild<ElementRef<HTMLButtonElement>>('cancelDelete');
-
-  readonly options = computed(() => {
-    const list = this.store.projects();
-    const current = this.store.project();
-    if (list.some((p) => p.id === current.id)) return list;
-    const name = current.spec.name || this.i18n.t('header.untitled');
-    return [{ id: current.id, name, kind: current.spec.kind, updatedAt: 0 }, ...list];
-  });
 
   readonly localLabel = computed(() => `local.${this.local.sync()}` as MessageKey);
   readonly syncLabel = computed(() => `sync.${this.store.syncState()}` as MessageKey);
@@ -81,24 +69,6 @@ export class AppHeaderComponent {
         return this.i18n.t(this.persistence.mode() === 'account' ? 'save.account' : 'save.browser');
     }
   });
-
-  async onProjectChange(event: Event): Promise<void> {
-    const select = event.target as HTMLSelectElement;
-    const value = select.value;
-    if (value.startsWith('lib:')) await this.store.openLibrary(value.slice(4));
-    else if (value.startsWith('local:')) await this.local.open(value.slice(6));
-    else await this.store.open(value);
-    // A library choice becomes (or reuses) a project; the list then shows that project as chosen.
-    select.value = this.store.project().id;
-    if (value.startsWith('lib:')) this.showMap();
-  }
-
-  /** A skill from the library opens on its map: drawn straight away only when the user chose that, otherwise offered. */
-  private showMap(): void {
-    const project = this.store.project();
-    this.ui.showWorkspace('map');
-    if (this.ui.autoMap() && !project.map.trim() && project.files.length && this.agent.canRun()) void this.agent.drawMap();
-  }
 
   /** Saves the open skill to the library: an update when it came from there, otherwise a new entry. */
   async saveSkill(): Promise<void> {
@@ -134,7 +104,7 @@ export class AppHeaderComponent {
   async deleteProject(): Promise<void> {
     this.confirmingDelete.set(false);
     await this.store.deleteProject();
-    focusAfterRender(this.injector, () => document.getElementById('project-select'));
+    focusAfterRender(this.injector, () => document.querySelector<HTMLElement>('.c-picker__toggle'));
   }
 
   /** Stops any Claude run first, so it cannot write into the project being wiped. */

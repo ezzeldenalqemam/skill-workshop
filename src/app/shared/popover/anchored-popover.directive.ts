@@ -12,6 +12,8 @@ export class AnchoredPopoverDirective {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly anchor = input.required<HTMLElement>({ alias: 'appAnchoredPopover' });
+  /** Which edge of the button the panel lines up with: its inline end (default) or its inline start. */
+  readonly align = input<'start' | 'end'>('end', { alias: 'popoverAlign' });
 
   /** Positioned before it shows, so it never paints a frame in the default centred spot. */
   @HostListener('beforetoggle', ['$event'])
@@ -24,6 +26,7 @@ export class AnchoredPopoverDirective {
     if ((event as Event & { newState?: string }).newState !== 'open') return;
     const root = this.el.nativeElement;
     const target =
+      root.querySelector<HTMLElement>('[data-autofocus]') ??
       root.querySelector<HTMLElement>('input:checked') ??
       root.querySelector<HTMLElement>('input:not([disabled]), button:not([disabled]), [tabindex="0"]');
     target?.focus();
@@ -38,6 +41,16 @@ export class AnchoredPopoverDirective {
     const rect = this.anchor().getBoundingClientRect();
     const rtl = getComputedStyle(this.anchor()).direction === 'rtl';
     const gap = 8;
+    if (this.align() === 'start') {
+      const fromStart = rtl ? window.innerWidth - rect.right : rect.left;
+      Object.assign(this.el.nativeElement.style, {
+        insetBlockStart: `${rect.bottom + gap}px`,
+        insetInlineStart: `${Math.max(8, fromStart)}px`,
+        insetInlineEnd: 'auto',
+        insetBlockEnd: 'auto',
+      });
+      return;
+    }
     const fromEnd = rtl ? rect.left : window.innerWidth - rect.right;
     Object.assign(this.el.nativeElement.style, {
       insetBlockStart: `${rect.bottom + gap}px`,

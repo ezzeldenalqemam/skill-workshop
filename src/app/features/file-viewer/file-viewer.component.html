@@ -76,7 +76,7 @@
         <figcaption class="c-viewer__meta">{{ 'viewer.image' | t: { kb: imageKb() } }}</figcaption>
       </figure>
     } @else if (effectiveMode() === 'preview') {
-      <div class="c-viewer__preview" [attr.aria-busy]="agent.running()">
+      <div class="c-viewer__preview" tabindex="0" role="region" [attr.aria-label]="'viewer.previewRegion' | t: { path: current.path }" [attr.aria-busy]="agent.running()">
         <div class="c-viewer__page">
           @if (metaFields(); as fields) {
             <!-- The card reads in the file's own direction, like the text under it -->

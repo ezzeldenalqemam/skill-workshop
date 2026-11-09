@@ -9,28 +9,7 @@
 
   <!-- Project -->
   <div class="l-header__project">
-    <label class="u-visually-hidden" for="project-select">{{ 'header.project' | t }}</label>
-    <select class="c-field__control l-header__select" id="project-select" (change)="onProjectChange($event)">
-      <optgroup [label]="'header.myProjects' | t">
-        @for (p of options(); track p.id) {
-          <option [value]="p.id" [selected]="p.id === store.project().id">{{ p.name }} · {{ kindLabels[p.kind] }}</option>
-        }
-      </optgroup>
-      @if (local.skills().length) {
-        <optgroup [label]="'header.onComputer' | t">
-          @for (skill of local.skills(); track skill.name) {
-            <option [value]="'local:' + skill.name">{{ skill.name }}</option>
-          }
-        </optgroup>
-      }
-      @if (store.library().length) {
-        <optgroup [label]="'header.mySkills' | t">
-          @for (entry of store.library(); track entry.id) {
-            <option [value]="'lib:' + entry.id">{{ entry.name }} · {{ originLabels[entry.origin] | t }}</option>
-          }
-        </optgroup>
-      }
-    </select>
+    <app-project-picker />
     <span
       class="l-header__save"
       [class.is-error]="store.saveState() === 'error'"

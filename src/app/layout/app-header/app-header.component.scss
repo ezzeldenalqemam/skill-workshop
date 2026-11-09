@@ -47,16 +47,6 @@
     max-inline-size: #{px(440)};
   }
 
-  &__select {
-    flex: 1;
-    min-inline-size: 0;
-    min-block-size: #{px(34)};
-    border-color: var(--line);
-    background: var(--surface);
-    font-size: var(--fs-sm);
-    cursor: pointer;
-  }
-
   &__save {
     --icon-size: #{px(16)};
 

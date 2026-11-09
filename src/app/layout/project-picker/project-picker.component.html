@@ -1,0 +1,96 @@
+<button
+  #toggle
+  type="button"
+  class="c-picker__toggle"
+  popovertarget="project-picker"
+  aria-haspopup="dialog"
+  [attr.aria-label]="('header.project' | t) + ': ' + currentName()"
+>
+  <span class="c-picker__current" dir="auto">{{ currentName() }}</span>
+  <app-icon name="chevron" class="c-picker__caret" />
+</button>
+
+<div #panel id="project-picker" class="c-picker" role="dialog" aria-labelledby="picker-title" [appAnchoredPopover]="toggle" popoverAlign="start" (toggle)="onToggle($event, toggle)">
+  <h2 class="u-visually-hidden" id="picker-title">{{ 'header.project' | t }}</h2>
+
+  <!-- My projects: open or delete -->
+  <section class="c-picker__group" aria-labelledby="picker-projects">
+    <h3 class="c-picker__heading" id="picker-projects">{{ 'header.myProjects' | t }}</h3>
+    <ul class="c-picker__list">
+      @for (p of projects(); track p.id; let i = $index) {
+        <li class="c-picker__row" [class.is-current]="p.id === store.project().id">
+          @if (confirming() === p.id) {
+            <span class="c-picker__ask" [id]="'picker-ask-' + p.id">{{ 'picker.deleteAsk' | t: { name: p.name } }}</span>
+            <span class="c-picker__ask-actions" role="group" [attr.aria-labelledby]="'picker-ask-' + p.id">
+              <button type="button" class="c-button is-sm is-danger" (click)="confirmDelete(p.id, i)">{{ 'common.delete' | t }}</button>
+              <button type="button" class="c-button is-sm is-quiet" [attr.data-cancel]="p.id" (click)="cancelDelete(p.id)">{{ 'common.cancel' | t }}</button>
+            </span>
+          } @else {
+            <button
+              type="button"
+              class="c-picker__open"
+              [attr.data-project]="p.id"
+              [attr.data-autofocus]="p.id === store.project().id ? '' : null"
+              [attr.aria-current]="p.id === store.project().id ? 'true' : null"
+              (click)="open(p.id)"
+            >
+              <span class="c-picker__name" dir="auto">{{ p.name }}</span>
+              <span class="c-picker__meta">
+                @if (p.localSkill) {
+                  <app-icon name="laptop" [attr.title]="'header.onComputer' | t" />
+                }
+                {{ kindLabels[p.kind] }}
+              </span>
+            </button>
+            @if (!p.draft) {
+              <button
+                type="button"
+                class="c-picker__delete"
+                [attr.data-delete]="p.id"
+                [attr.aria-label]="'picker.delete' | t: { name: p.name }"
+                [title]="'picker.delete' | t: { name: p.name }"
+                (click)="askDelete(p.id)"
+              >
+                <app-icon name="trash" />
+              </button>
+            }
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- On my computer -->
+  @if (local.skills().length) {
+    <section class="c-picker__group" aria-labelledby="picker-local">
+      <h3 class="c-picker__heading" id="picker-local">{{ 'header.onComputer' | t }}</h3>
+      <ul class="c-picker__list">
+        @for (skill of local.skills(); track skill.name) {
+          <li class="c-picker__row">
+            <button type="button" class="c-picker__open" (click)="openLocal(skill.name)">
+              <span class="c-picker__name" dir="ltr">{{ skill.name }}</span>
+              <span class="c-picker__meta"><app-icon name="laptop" /></span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- My saved skills -->
+  @if (store.library().length) {
+    <section class="c-picker__group" aria-labelledby="picker-library">
+      <h3 class="c-picker__heading" id="picker-library">{{ 'header.mySkills' | t }}</h3>
+      <ul class="c-picker__list">
+        @for (entry of store.library(); track entry.id) {
+          <li class="c-picker__row">
+            <button type="button" class="c-picker__open" (click)="openLibrary(entry.id)">
+              <span class="c-picker__name" dir="ltr">{{ entry.name }}</span>
+              <span class="c-picker__meta">{{ originLabels[entry.origin] | t }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

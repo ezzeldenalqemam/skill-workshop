@@ -1,0 +1,200 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: flex;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.c-picker {
+  @include overlay;
+
+  position: fixed;
+  inline-size: min(#{px(380)}, calc(100vw - #{px(16)}));
+  max-block-size: calc(100dvh - #{px(90)});
+  margin: 0;
+  padding: var(--space-2);
+  color: var(--text);
+  overflow: auto;
+
+  &:popover-open {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  // The header button: the open project's name, like the select it replaces.
+  &__toggle {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    min-block-size: #{px(34)};
+    padding-block: 0;
+    padding-inline: var(--space-3) var(--space-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--line-strong);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+
+  &__current {
+    flex: 1;
+    overflow: hidden;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__caret {
+    --icon-size: #{px(14)};
+
+    flex: none;
+    color: var(--text-muted);
+    rotate: 90deg;
+  }
+
+  &__group {
+    display: grid;
+    gap: #{px(2)};
+
+    & + & {
+      padding-block-start: var(--space-2);
+      border-block-start: 1px solid var(--line);
+    }
+  }
+
+  &__heading {
+    padding-block: var(--space-1);
+    padding-inline: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  &__list {
+    display: grid;
+    gap: #{px(2)};
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: #{px(36)};
+    border-radius: var(--radius-sm);
+
+    &:hover,
+    &:focus-within {
+      background: var(--surface-2);
+    }
+
+    &.is-current {
+      background: var(--accent-soft);
+    }
+  }
+
+  &__open {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    min-block-size: #{px(36)};
+    padding-block: 0;
+    padding-inline: var(--space-2);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-sm);
+    text-align: start;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+    }
+
+    .is-current > & {
+      font-weight: 600;
+    }
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    --icon-size: #{px(13)};
+
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+  }
+
+  &__delete {
+    --icon-size: #{px(14)};
+
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: #{px(30)};
+    block-size: #{px(30)};
+    margin-inline-end: #{px(3)};
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text-faint);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+      color: var(--danger);
+    }
+  }
+
+  // Asking before a delete: the question, then delete / cancel.
+  &__ask {
+    flex: 1 1 100%;
+    padding-block-start: var(--space-1);
+    padding-inline: var(--space-2);
+    font-size: var(--fs-xs);
+  }
+
+  &__ask-actions {
+    display: flex;
+    gap: var(--space-1);
+    padding-block-end: var(--space-1);
+    padding-inline: var(--space-2);
+  }
+}

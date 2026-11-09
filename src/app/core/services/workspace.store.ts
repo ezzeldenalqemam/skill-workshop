@@ -305,6 +305,21 @@ export class WorkspaceStore {
     this.announcer.announce(this.i18n.t('store.deleted'));
   }
 
+  /**
+   * Removes one project from the workshop. Only the workshop's copy goes: a skill's folder on the
+   * computer and its saved copy in "my skills" stay as they are.
+   */
+  async deleteProjectById(id: string): Promise<void> {
+    if (id === this.project().id) {
+      await this.deleteProject();
+      return;
+    }
+    await this.persistence.remove(id);
+    this.projects.update((list) => list.filter((p) => p.id !== id));
+    this.openTabs.update((tabs) => tabs.filter((t) => t !== id));
+    this.announcer.announce(this.i18n.t('store.deleted'));
+  }
+
   /** Deletes every project and returns to an empty draft; a pending save is dropped, not flushed. */
   async resetAll(): Promise<boolean> {
     clearTimeout(this.saveTimer);
