@@ -46,3 +46,6 @@ Thumbs.db
 
 # Link to your published copy (written by the skill-workshop plugin)
 /.workshop.json
+
+# Local Claude Code settings (dev server config for this machine)
+/.claude/

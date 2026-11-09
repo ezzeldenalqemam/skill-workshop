@@ -7,6 +7,39 @@
 - Keep your skills in a private library ("مهاراتي"), open several as tabs, edit them, and install them in claude.ai or Claude Code.
 - English (the default, LTR) and Arabic (RTL), light and dark themes, and accessibility tools. The idea map is always written in English.
 
+![A skill open in Skill Workshop: the brief on the left, its files and SKILL.md preview on the right](docs/screenshots/workshop-files.jpg)
+
+![The same skill's idea map, drawn by Claude](docs/screenshots/workshop-map.jpg)
+
+<div dir="rtl" lang="ar">
+
+## بالعربية باختصار
+
+ورشة المهارات صفحة على claude.ai تبني فيها مهارات (Skills) وإضافات (Plugins) لـ Claude، وتفتح فيها مهارة موجودة ليشرحها Claude ويرسم خريطتها، ثم تحفظها في مكتبتك وتثبّتها في Claude.
+
+**لتشغيلها عندك:**
+
+1. ثبّت Node.js (الإصدار 20 أو أحدث) وGit، وافتح Claude Code مسجّلًا بحسابك على claude.ai.
+2. اكتب في الطرفية (Terminal) الأمرين:
+
+</div>
+
+```bash
+claude plugin marketplace add ezzeldenalqemam/skill-workshop
+```
+
+```bash
+claude plugin install skill-workshop@skill-workshop
+```
+
+<div dir="rtl" lang="ar">
+
+3. افتح جلسة جديدة في Claude Code واكتب `/skill-workshop:setup`، أو اطلب: «شغّل ورشة المهارات».
+
+ينزّل Claude المشروع ويبنيه، ثم ينشر نسخة خاصة بك على claude.ai ويعطيك رابطها. لتحديثها لاحقًا كرّر الأمر نفسه؛ يبقى الرابط وتبقى أعمالك المحفوظة.
+
+</div>
+
 ## Get your own copy with the plugin (easiest)
 
 The repository is also a Claude Code plugin marketplace. The `skill-workshop` plugin downloads this project, builds it, and publishes your own private copy on claude.ai, ready to use with Claude.
@@ -81,3 +114,5 @@ The `library` rule keeps your saved skills readable and writable by you alone, e
 | `scripts/build-artifact.mjs` | Turns the Angular build into an Artifact page |
 | `plugin/` | The `skill-workshop` Claude Code plugin (setup and dev commands) |
 | `.claude-plugin/marketplace.json` | Makes this repository a plugin marketplace |
+| `docs/accessibility/` | The accessibility audit plan and progress log |
+| `docs/screenshots/` | The screenshots in this README |
