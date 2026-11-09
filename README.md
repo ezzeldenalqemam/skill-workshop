@@ -2,10 +2,10 @@
 
 **ورشة المهارات / Skill Workshop**: a page for building, reading, and maintaining Claude skills. It runs as a claude.ai Artifact, so it has no backend of its own. Claude calls use the viewer's own account.
 
-- Build a skill, plugin, command, or hook from a short brief.
+- Build a skill or a plugin from a short brief, with reference files, images, and links.
 - Open an existing skill (ZIP, folder, or files) and have Claude explain it and draw its idea map.
 - Keep your skills in a private library ("مهاراتي"), open several as tabs, edit them, and install them in claude.ai or Claude Code.
-- Arabic (RTL) and English (LTR), light and dark themes, and accessibility tools.
+- English (the default, LTR) and Arabic (RTL), light and dark themes, and accessibility tools. The idea map is always written in English.
 
 ## Run it locally
 
@@ -36,10 +36,10 @@ npm run build:artifact
 Then ask Claude Code to publish `dist/artifact/index.html` as an Artifact, with the other files in `dist/artifact` as its files and these capabilities:
 
 ```
-sample: {}, db: { rules: [{ path: "library", read: "owner", write: "owner" }] }, downloads: true, user: {}
+sample: { images: true }, db: { rules: [{ path: "library", read: "owner", write: "owner" }] }, downloads: true, user: {}
 ```
 
-The `library` rule keeps your saved skills readable and writable by you alone, even when you share the page.
+The `library` rule keeps your saved skills readable and writable by you alone, even when you share the page. `images: true` lets Claude see the reference images you add.
 
 ## Project layout
 

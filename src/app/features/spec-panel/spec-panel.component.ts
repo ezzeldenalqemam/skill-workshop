@@ -3,7 +3,7 @@ import { isSampleError, ModelTier } from '../../core/claude/claude-runtime';
 import { I18nService } from '../../core/i18n/i18n.service';
 import { MessageKey } from '../../core/i18n/messages';
 import { TPipe } from '../../core/i18n/t.pipe';
-import { KIND_LABELS, ProjectKind, ProjectSpec } from '../../core/models/project.model';
+import { BUILD_KINDS, KIND_LABELS, ProjectKind, ProjectSpec } from '../../core/models/project.model';
 import { AnnouncerService } from '../../core/services/announcer.service';
 import { BriefField, ClaudeAgentService } from '../../core/services/claude-agent.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
@@ -50,7 +50,8 @@ export class SpecPanelComponent {
   private readonly i18n = inject(I18nService);
 
   readonly fields = DETAIL_FIELDS;
-  readonly kinds = Object.entries(KIND_LABELS) as [ProjectKind, string][];
+  readonly kinds = BUILD_KINDS.map((kind) => [kind, KIND_LABELS[kind]] as [ProjectKind, string]);
+  readonly linkError = signal(false);
   readonly tiers: { value: ModelTier; label: MessageKey }[] = [
     { value: 'quick', label: 'tier.quick' },
     { value: 'default', label: 'tier.default' },
@@ -189,6 +190,23 @@ export class SpecPanelComponent {
     this.suggestController?.abort();
     this.suggestController = undefined;
     this.suggesting.set(false);
+  }
+
+  /** A reference link is kept in references/links.md; Claude reads the address, it cannot open the page. */
+  addLink(urlField: HTMLInputElement, titleField: HTMLInputElement): void {
+    const url = urlField.value.trim();
+    if (!/^https?:\/\/\S+\.\S+/i.test(url)) {
+      this.linkError.set(true);
+      urlField.focus();
+      return;
+    }
+    this.linkError.set(false);
+    this.store.addLink(url, titleField.value.trim());
+    urlField.value = '';
+    titleField.value = '';
+    const note = this.i18n.t('spec.refsLinkAdded');
+    this.importNote.set(note);
+    this.announcer.announce(note);
   }
 
   private requireIdea(): boolean {

@@ -77,12 +77,12 @@
     </div>
   }
 
-  @if (agent.needsTranslation() && !agent.translating()) {
+  @if (agent.mapNeedsEnglish() && !agent.translating()) {
     <div class="c-map__offer" role="group" aria-labelledby="map-translate-text">
-      <p class="c-map__offer-text" id="map-translate-text">{{ 'translate.offer' | t }}</p>
+      <p class="c-map__offer-text" id="map-translate-text">{{ 'translate.mapOffer' | t }}</p>
       <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.translateContent()">
         <app-icon name="sparkles" />
-        {{ 'translate.run' | t }}
+        {{ 'translate.mapRun' | t }}
       </button>
     </div>
   }

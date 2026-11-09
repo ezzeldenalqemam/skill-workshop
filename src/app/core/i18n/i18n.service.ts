@@ -5,7 +5,7 @@ const KEY = 'skill-workshop.lang';
 
 export type MessageParams = Record<string, string | number>;
 
-/** Arabic (RTL) / English (LTR). Switching language also flips `dir` on <html>. */
+/** English (LTR, the default) / Arabic (RTL). Switching language also flips `dir` on <html>. */
 @Injectable({ providedIn: 'root' })
 export class I18nService {
   readonly lang = signal<Lang>(this.read());
@@ -41,6 +41,6 @@ export class I18nService {
     } catch {
       // fall through to the default
     }
-    return 'ar';
+    return 'en';
   }
 }

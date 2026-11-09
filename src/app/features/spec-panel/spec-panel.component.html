@@ -143,6 +143,33 @@
             </div>
             <span class="c-field__hint">{{ 'spec.refsHint' | t }}</span>
             <app-drop-zone class="c-spec__drop" inputId="spec-references" [label]="'spec.refsPick' | t" [hint]="'spec.refsDrop' | t" (files)="addReferences($event)" />
+            <div class="c-spec__link" role="group" [attr.aria-label]="'spec.refsLinkLabel' | t">
+              <div class="c-spec__link-fields">
+                <label class="u-visually-hidden" for="ref-url">{{ 'spec.refsLinkLabel' | t }}</label>
+                <input
+                  class="c-field__control"
+                  id="ref-url"
+                  #refUrl
+                  type="url"
+                  dir="ltr"
+                  autocomplete="off"
+                  [placeholder]="'spec.refsLinkPh' | t"
+                  [attr.aria-invalid]="linkError() ? 'true' : null"
+                  [attr.aria-describedby]="linkError() ? 'ref-url-note ref-url-error' : 'ref-url-note'"
+                  (keydown.enter)="$event.preventDefault(); addLink(refUrl, refTitle)"
+                />
+                <label class="u-visually-hidden" for="ref-title">{{ 'spec.refsLinkTitle' | t }}</label>
+                <input #refTitle class="c-field__control" id="ref-title" type="text" (keydown.enter)="$event.preventDefault(); addLink(refUrl, refTitle)" dir="auto" autocomplete="off" [placeholder]="'spec.refsLinkTitle' | t" />
+                <button type="button" class="c-button is-sm" (click)="addLink(refUrl, refTitle)">
+                  <app-icon name="link" />
+                  {{ 'spec.refsLinkAdd' | t }}
+                </button>
+              </div>
+              <span class="c-field__hint" id="ref-url-note">{{ 'spec.refsLinkNote' | t }}</span>
+              @if (linkError()) {
+                <span class="c-field__error" id="ref-url-error" role="alert">{{ 'spec.refsLinkInvalid' | t }}</span>
+              }
+            </div>
             @if (importNote()) {
               <span class="c-field__hint">{{ importNote() }}</span>
             }

@@ -27,7 +27,7 @@
       }
 
       <div class="c-viewer__tools">
-        @if (isMarkdown()) {
+        @if (isMarkdown() && !isImage()) {
           <div class="c-viewer__switch" role="group" [attr.aria-label]="'viewer.view' | t">
             <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="mode() === 'preview'" (click)="mode.set('preview')">
               <app-icon name="eye" />
@@ -39,10 +39,12 @@
             </button>
           </div>
         }
-        <button type="button" class="c-button is-sm" [title]="'viewer.askHint' | t" (click)="askAboutSelection()">
-          <app-icon name="wand" />
-          {{ 'viewer.ask' | t }}
-        </button>
+        @if (!isImage()) {
+          <button type="button" class="c-button is-sm" [title]="'viewer.askHint' | t" (click)="askAboutSelection()">
+            <app-icon name="wand" />
+            {{ 'viewer.ask' | t }}
+          </button>
+        }
         <button #renameButton type="button" class="c-button is-sm is-icon is-quiet" [attr.aria-label]="'viewer.rename' | t" [title]="'viewer.rename' | t" (click)="startRename()">
           <app-icon name="rename" />
         </button>
@@ -68,7 +70,12 @@
     @if (agent.running()) {
       <div class="c-viewer__progress" aria-hidden="true"></div>
     }
-    @if (effectiveMode() === 'preview') {
+    @if (isImage()) {
+      <figure class="c-viewer__image">
+        <img class="c-viewer__image-img" [src]="imageSrc()" [alt]="'viewer.imageAlt' | t: { path: current.path }" />
+        <figcaption class="c-viewer__meta">{{ 'viewer.image' | t: { kb: imageKb() } }}</figcaption>
+      </figure>
+    } @else if (effectiveMode() === 'preview') {
       <div class="c-viewer__preview" [attr.aria-busy]="agent.running()">
         <div class="c-viewer__page">
           @if (metaFields(); as fields) {

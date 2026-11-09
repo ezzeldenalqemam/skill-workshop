@@ -3,6 +3,7 @@ import { I18nService } from '../../core/i18n/i18n.service';
 import { AnnouncerService } from '../../core/services/announcer.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
 import { ZipService } from '../../core/services/zip.service';
+import { imageMime } from '../../core/models/project.model';
 import { TPipe } from '../../core/i18n/t.pipe';
 import { focusAfterRender } from '../../shared/focus/focus-after-render';
 import { IconComponent } from '../../shared/icon/icon.component';
@@ -23,6 +24,7 @@ export interface TreeNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FileTreeComponent {
+  readonly isImagePath = (path: string) => !!imageMime(path);
   readonly store = inject(WorkspaceStore);
   private readonly zip = inject(ZipService);
   private readonly announcer = inject(AnnouncerService);

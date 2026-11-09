@@ -290,6 +290,28 @@
     font-size: var(--fs-xs);
     font-variant-numeric: tabular-nums;
   }
+
+  // A reference image, fitted to the panel.
+  &__image {
+    @include scroll('both');
+
+    display: grid;
+    flex: 1;
+    align-content: start;
+    justify-items: center;
+    gap: var(--space-2);
+    min-block-size: 0;
+    margin: 0;
+    padding: var(--space-4);
+  }
+
+  &__image-img {
+    max-inline-size: 100%;
+    block-size: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+  }
 }
 
 @keyframes c-viewer-spin {

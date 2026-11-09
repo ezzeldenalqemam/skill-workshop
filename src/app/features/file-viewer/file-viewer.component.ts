@@ -46,6 +46,13 @@ export class FileViewerComponent {
 
   readonly file = this.store.selectedFile;
   readonly isMarkdown = computed(() => /\.(md|markdown)$/i.test(this.file()?.path ?? ''));
+  /** Reference images show as a picture; they are not edited as text. */
+  readonly isImage = computed(() => this.file()?.encoding === 'base64');
+  readonly imageSrc = computed(() => {
+    const file = this.file();
+    return file?.encoding === 'base64' ? `data:${file.mime ?? 'image/png'};base64,${file.content}` : '';
+  });
+  readonly imageKb = computed(() => Math.round(((this.file()?.content.length ?? 0) * 3) / 4 / 1024));
   readonly lineCount = computed(() => (this.file()?.content.match(/\n/g)?.length ?? 0) + 1);
   readonly effectiveMode = computed<ViewMode>(() => (this.isMarkdown() ? this.mode() : 'edit'));
   /** Simple `key: value` frontmatter shows as labelled fields; anything nested falls back to the raw block. */

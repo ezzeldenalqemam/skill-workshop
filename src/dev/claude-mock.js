@@ -34,7 +34,7 @@
 
   async function sample(input, opts = {}) {
     const prompt = textOf(input);
-    record({ kind: 'sample', tools: (opts.tools || []).map((t) => t.name) });
+    record({ kind: 'sample', tools: (opts.tools || []).map((t) => t.name), images: opts.images ? opts.images.length : 0 });
     const tool = (name) => opts.tools?.find((t) => t.name === name);
     await wait(THINK, opts.signal);
     if (!opts.tools) return { text: '```mermaid\n' + MAP + '\n  C --> D[Map only]\n```', truncated: false };
@@ -58,7 +58,7 @@
 
   sample.json = async (input, opts = {}) => {
     const prompt = textOf(input);
-    record({ kind: 'json' });
+    record({ kind: 'json', images: opts.images ? opts.images.length : 0 });
     await wait(400, opts.signal);
     // Brief suggestions: each requested field gets a value built from the idea.
     const suggest = /^SUGGEST: (.*)$/m.exec(prompt);
@@ -105,7 +105,10 @@ Output: done`,
     return { reply: 'JSON mode reply (mock).', writes: [{ path: 'SKILL.md', content: '# Mock (json)\n' }], map: MAP };
   };
 
-  sample.limits = async () => ({ tools: !new URLSearchParams(location.search).has('no-tools'), images: false });
+  sample.limits = async () => ({
+    tools: !new URLSearchParams(location.search).has('no-tools'),
+    images: { maxCount: 5, maxInputBytes: 20 * 1024 * 1024, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] },
+  });
 
   // A db kept in localStorage under its own key, with the same doc/collection shape the page uses.
   const DB_KEY = 'skill-workshop.mock-db';

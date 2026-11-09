@@ -78,6 +78,22 @@
     }
   }
 
+  // Reference link: address, optional title, add.
+  &__link {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  &__link-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+    gap: var(--space-2);
+
+    @include mq(max, w, sm) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   &__suggest {
     display: flex;
     flex-wrap: wrap;

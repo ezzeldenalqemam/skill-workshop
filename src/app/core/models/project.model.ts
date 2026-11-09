@@ -16,7 +16,43 @@ export interface ProjectSpec {
 
 export interface ProjectFile {
   path: string;
+  /** Text, or for an image the base64 bytes (see `encoding`). */
   content: string;
+  /** Set on images: `content` holds base64, not text. */
+  encoding?: 'base64';
+  mime?: string;
+}
+
+/** Image types a reference can be: the ones Claude accepts as images. */
+export const IMAGE_TYPES: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
+export function imageMime(path: string): string | null {
+  return IMAGE_TYPES[/\.([a-z0-9]+)$/i.exec(path)?.[1]?.toLowerCase() ?? ''] ?? null;
+}
+
+export function isImageFile(file: ProjectFile): boolean {
+  return file.encoding === 'base64';
+}
+
+/** An image file back as bytes, to show it or hand it to Claude. */
+export function fileToBlob(file: ProjectFile): Blob {
+  const binary = atob(file.content);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: file.mime ?? imageMime(file.path) ?? 'application/octet-stream' });
+}
+
+/** The two kinds the workshop builds; older projects of other kinds open as plugins. */
+export const BUILD_KINDS: ProjectKind[] = ['skill', 'plugin'];
+
+export function buildKind(kind: ProjectKind | undefined): ProjectKind {
+  return kind === 'skill' ? 'skill' : kind ? 'plugin' : 'skill';
 }
 
 export interface ClarifyingQuestion {

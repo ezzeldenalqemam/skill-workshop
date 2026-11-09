@@ -18,12 +18,12 @@
     }
   </section>
 
-  @if (html() && agent.needsTranslation() && !agent.translating()) {
+  @if (html() && agent.explanationNeedsTranslation() && !agent.translating()) {
     <div class="c-explain__offer" role="group" aria-labelledby="explain-translate-text">
-      <p class="c-explain__offer-text" id="explain-translate-text">{{ 'translate.offer' | t }}</p>
+      <p class="c-explain__offer-text" id="explain-translate-text">{{ 'translate.explainOffer' | t }}</p>
       <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.translateContent()">
         <app-icon name="sparkles" />
-        {{ 'translate.run' | t }}
+        {{ 'translate.explainRun' | t }}
       </button>
     </div>
   }

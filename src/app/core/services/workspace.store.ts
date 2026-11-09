@@ -4,6 +4,7 @@ import type { Lang } from '../i18n/messages';
 import {
   ChatMessage,
   emptySpec,
+  buildKind,
   entryState,
   filesHash,
   isGitPath,
@@ -136,7 +137,7 @@ export class WorkspaceStore {
     this.flushSave();
     const project: Project = {
       id: newId(),
-      spec: { ...emptySpec(), kind: entry.kind, name: entry.name, idea: entry.description },
+      spec: { ...emptySpec(), kind: buildKind(entry.kind), name: entry.name, idea: entry.description },
       files: [],
       map: '',
       explanation: '',
@@ -145,7 +146,7 @@ export class WorkspaceStore {
       libraryId: id,
     };
     this.setProject(project);
-    this.change((p) => ({ ...p, files: entry.files.map((f) => ({ path: f.path, content: f.content })) }));
+    this.change((p) => ({ ...p, files: entry.files.map((f) => ({ ...f })) }));
     this.selectedPath.set(this.files().find((f) => /(^|\/)SKILL\.md$/.test(f.path))?.path ?? this.files()[0]?.path ?? null);
     this.announcer.announce(this.i18n.t('library.opened', { name: entry.name }));
   }
@@ -212,7 +213,8 @@ export class WorkspaceStore {
   async open(id: string): Promise<void> {
     const loaded = await this.persistence.load(id);
     if (!loaded) return;
-    this.setProject(loaded);
+    // Only skills and plugins are built here now; an older command or hook project opens as a plugin.
+    this.setProject(loaded.spec.kind === buildKind(loaded.spec.kind) ? loaded : { ...loaded, spec: { ...loaded.spec, kind: buildKind(loaded.spec.kind) } });
     // Projects imported before `.git` was filtered out still carry it: drop it once and keep the flag.
     if (loaded.files.some((f) => isGitPath(f.path))) {
       this.change((p) => ({ ...p, files: p.files.filter((f) => !isGitPath(f.path)), hasGit: true }));
@@ -245,7 +247,7 @@ export class WorkspaceStore {
       ...p,
       files: files.flatMap((f) => {
         const path = normalizePath(f.path);
-        return path && !isGitPath(path) ? [{ path, content: f.content }] : [];
+        return path && !isGitPath(path) ? [{ ...f, path }] : [];
       }),
       hasGit: hasGit || files.some((f) => isGitPath(f.path)) || undefined,
     }));
@@ -290,16 +292,18 @@ export class WorkspaceStore {
 
   // ---- files -------------------------------------------------------------
 
-  writeFile(rawPath: string, content: string): string | null {
+  /** `image` carries an image's encoding; text written over an existing image is refused. */
+  writeFile(rawPath: string, content: string, image?: Pick<ProjectFile, 'encoding' | 'mime'>): string | null {
     const path = normalizePath(rawPath);
     if (!path) return null;
     if (isGitPath(path)) {
       this.markGit();
       return null;
     }
+    if (!image && this.project().files.some((f) => f.path === path && f.encoding)) return null;
     this.change((p) => {
       const files = p.files.filter((f) => f.path !== path);
-      files.push({ path, content });
+      files.push({ path, content, ...(image?.encoding ? image : {}) });
       return { ...p, files };
     });
     return path;
@@ -330,14 +334,23 @@ export class WorkspaceStore {
   addFiles(files: ProjectFile[], base = ''): number {
     let count = 0;
     for (const file of files) {
-      if (this.writeFile(base ? `${base}/${file.path}` : file.path, file.content)) count++;
+      const image = file.encoding ? { encoding: file.encoding, mime: file.mime } : undefined;
+      if (this.writeFile(base ? `${base}/${file.path}` : file.path, file.content, image)) count++;
     }
     return count;
   }
 
-  /** `byHand` marks the map as ahead of the files until Claude applies it. */
+  /** `byHand` marks the map as ahead of the files until Claude applies it. The map is always English, so it never touches the explanation's language. */
   setMap(map: string, byHand = false): void {
-    this.change((p) => ({ ...p, map, mapEdited: byHand, translations: undefined, contentLang: this.i18n.lang() }));
+    this.change((p) => ({ ...p, map, mapEdited: byHand }));
+  }
+
+  /** Adds a reference link to references/links.md (created on first use). */
+  addLink(url: string, title: string): void {
+    const path = 'references/links.md';
+    const current = this.project().files.find((f) => f.path === path)?.content ?? '# Reference links\n\nPages the user pointed to. Claude reads these addresses as text and cannot open them.\n';
+    const line = title ? `- [${title.replace(/[[\]]/g, '')}](${url})` : `- <${url}>`;
+    this.writeFile(path, `${current.trimEnd()}\n${line}\n`);
   }
 
   /** Shows the map and explanation in `lang`, keeping the current pair under `from` for the way back. */
@@ -349,7 +362,8 @@ export class WorkspaceStore {
   restoreTranslation(from: Lang, lang: Lang): boolean {
     const kept = this.project().translations?.[lang];
     if (!kept) return false;
-    this.applyTranslation(from, lang, kept.map, kept.explanation);
+    // Only the explanation follows the language; the map stays as it is (always English).
+    this.applyTranslation(from, lang, this.project().map, kept.explanation);
     return true;
   }
 

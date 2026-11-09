@@ -70,7 +70,7 @@
               (click)="store.select(node.path)"
             >
               <span class="c-tree__chevron" aria-hidden="true"></span>
-              <app-icon name="file" />
+              <app-icon [name]="isImagePath(node.path) ? 'image' : 'file'" />
               <span class="c-tree__name">{{ node.name }}</span>
             </button>
           }

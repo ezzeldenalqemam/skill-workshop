@@ -35,7 +35,14 @@ export interface SampleError {
 export interface SampleFn {
   (input: string | SampleMessage[], options?: SampleOptions): Promise<{ text: string; truncated: boolean }>;
   json<T = unknown>(input: string | SampleMessage[], options?: SampleOptions): Promise<T>;
-  limits(): Promise<{ maxPromptBytes: number; tools?: { maxCount: number } }>;
+  limits(): Promise<{ maxPromptBytes: number; tools?: { maxCount: number }; images?: ImageLimits }>;
+}
+
+/** Present only when the page may send images to Claude. */
+export interface ImageLimits {
+  maxCount: number;
+  maxInputBytes: number;
+  mediaTypes: string[];
 }
 
 export interface DocSnapshot {
