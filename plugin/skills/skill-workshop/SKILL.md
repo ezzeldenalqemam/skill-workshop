@@ -18,7 +18,7 @@ Reply to the user in the language they write in. Keep each progress message to o
 - Capabilities to declare on publish (exactly this object):
 
 ```json
-{ "sample": { "images": true }, "db": { "rules": [{ "path": "library", "read": "owner", "write": "owner" }] }, "downloads": true, "user": {} }
+{ "sample": { "images": true }, "db": { "rules": [{ "path": "library", "read": "owner", "write": "owner" }] }, "downloads": true, "user": {}, "mcp": { "servers": [{ "server": "host:skill-files", "tools": ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_file", "create_directory"] }] } }
 ```
 
 - Where the user's copy is remembered: `<folder>/.workshop.json`, holding `{ "artifactUrl": "<claude.ai artifact link>" }`. Git ignores this file.
@@ -68,6 +68,22 @@ This needs the **Artifact** tool (the Claude desktop app's Code tab, or Claude C
 4. Write the returned link to `<folder>/.workshop.json` as `{ "artifactUrl": "<link>" }`.
 
 If publishing to a saved `url` is refused because the user cannot edit that artifact, publish without `url` (a new copy) and save the new link.
+
+### 4b. Connect the computer's skills folder (ask first)
+
+This lets the Workshop open the skills in `~/.claude/skills` and save edits straight into their files, the same as editing them from Claude Code. It edits the Claude app's settings, so ask the user before doing it, and skip it if they decline.
+
+1. Install the official filesystem MCP server, pinned, in its own folder:
+
+   ```bash
+   npm install --prefix ~/.claude/mcp/skill-files --no-audit --no-fund --save-exact @modelcontextprotocol/server-filesystem@2026.8.31
+   ```
+
+2. Back up the Claude app's settings file, then add one server to its `mcpServers`, leaving everything else as it is:
+   - Settings file: `%APPDATA%\Claude\claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS.
+   - Entry name: `skill-files` (the page calls it as `host:skill-files`).
+   - `command`: the full path of `node`; `args`: the server's `dist/index.js` under `~/.claude/mcp/skill-files/node_modules/@modelcontextprotocol/server-filesystem/`, then the full path of `~/.claude/skills`. Only that folder is reachable.
+3. Tell the user to quit and reopen the Claude app, then open their Workshop link inside the app. Under "On my computer" they will see their skills. The app may ask them to allow each save.
 
 ### 5. Hand it over
 

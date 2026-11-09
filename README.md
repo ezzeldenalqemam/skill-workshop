@@ -76,6 +76,10 @@ Claude checks your tools, downloads the project into `./skill-workshop`, builds 
 
 To try it on your computer without publishing (Claude's buttons then use a mock), use `/skill-workshop:dev`.
 
+## Open and save skills on your computer
+
+When the Workshop is open in the Claude desktop app, it can work on the skills in your Claude Code folder (`~/.claude/skills`) directly: they appear under **On my computer**, every edit is written back to their files, and asking Claude in the Workshop to "save it" writes a new skill there. This uses the official filesystem MCP server, limited to that one folder, added to the Claude app as `skill-files`. `/skill-workshop:setup` offers to set it up. Outside the Claude app (in a browser) the Workshop falls back to downloading a ZIP.
+
 ## Run it locally
 
 You need Node.js 20 or newer.
@@ -107,7 +111,8 @@ npm run build:artifact
 Then ask Claude Code to publish `dist/artifact/index.html` as an Artifact, with the other files in `dist/artifact` as its files and these capabilities:
 
 ```
-sample: { images: true }, db: { rules: [{ path: "library", read: "owner", write: "owner" }] }, downloads: true, user: {}
+sample: { images: true }, db: { rules: [{ path: "library", read: "owner", write: "owner" }] }, downloads: true, user: {},
+mcp: { servers: [{ server: "host:skill-files", tools: ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_file", "create_directory"] }] }
 ```
 
 The `library` rule keeps your saved skills readable and writable by you alone, even when you share the page. `images: true` lets Claude see the reference images you add.
