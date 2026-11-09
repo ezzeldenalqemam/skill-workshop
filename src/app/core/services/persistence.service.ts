@@ -235,6 +235,7 @@ export class PersistenceService {
       kind: p.spec?.kind ?? 'skill',
       updatedAt: p.updatedAt ?? 0,
       libraryId: p.libraryId,
+      localSkill: p.localSkill,
     };
   }
 

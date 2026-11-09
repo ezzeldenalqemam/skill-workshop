@@ -37,6 +37,19 @@
     font-size: var(--fs-sm);
   }
 
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__chip {
+    font-family: var(--font-mono);
+  }
+
   &__list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(#{px(260)}, 1fr));

@@ -30,6 +30,7 @@ const ACTIVITY: Record<ActivityEntry['kind'], { key: MessageKey; icon: string }>
   mapError: { key: 'act.mapError', icon: 'alert' },
   explain: { key: 'act.explain', icon: 'help' },
   spec: { key: 'act.spec', icon: 'layers' },
+  local: { key: 'act.local', icon: 'laptop' },
 };
 
 @Component({

@@ -4,6 +4,7 @@ import { MessageKey } from '../../core/i18n/messages';
 import { TPipe } from '../../core/i18n/t.pipe';
 import { slugify } from '../../core/models/project.model';
 import { AnnouncerService } from '../../core/services/announcer.service';
+import { LocalSkillsService } from '../../core/services/local-skills.service';
 import { PersistenceService } from '../../core/services/persistence.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
 import { ZipService } from '../../core/services/zip.service';
@@ -24,6 +25,8 @@ import { IconComponent } from '../icon/icon.component';
 export class InstallDialogComponent {
   readonly store = inject(WorkspaceStore);
   readonly persistence = inject(PersistenceService);
+  readonly local = inject(LocalSkillsService);
+  readonly localExists = signal(false);
   private readonly zip = inject(ZipService);
   private readonly i18n = inject(I18nService);
   private readonly announcer = inject(AnnouncerService);
@@ -86,6 +89,17 @@ export class InstallDialogComponent {
     const result = await this.zip.export(this.store.project());
     this.busy.set(null);
     this.say(result === 'saved' ? 'download.done' : result === 'declined' ? 'download.declined' : 'download.unavailable');
+  }
+
+  /** Writes the skill into Claude Code's skills folder on this computer; later edits follow it there. */
+  async saveLocal(overwrite: boolean): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set('download');
+    const result = await this.local.saveAs(this.folder(), overwrite);
+    this.busy.set(null);
+    this.localExists.set(result === 'exists');
+    if (result === 'saved') this.say('install.localSaved');
+    else if (result !== 'exists') this.say('install.localFailed');
   }
 
   async markInstalled(): Promise<void> {

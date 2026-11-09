@@ -128,6 +128,41 @@
     font-weight: 600;
   }
 
+  // Where the open skill stands against its folder on the computer.
+  &__local {
+    --icon-size: #{px(14)};
+
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding-inline: var(--space-2);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+
+    &[data-state='synced'] {
+      color: var(--success);
+    }
+
+    &[data-state='differs'],
+    &[data-state='offline'] {
+      background: var(--warning-soft);
+      color: var(--text);
+    }
+
+    &[data-state='error'] {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+  }
+
+  @include mq(max, w, xl) {
+    &__local-text {
+      @include visually-hidden;
+    }
+  }
+
   &__install {
     position: relative;
   }

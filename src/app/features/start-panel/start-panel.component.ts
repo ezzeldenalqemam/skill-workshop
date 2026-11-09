@@ -4,6 +4,7 @@ import { TPipe } from '../../core/i18n/t.pipe';
 import { entryState, LibraryEntry, LibraryOrigin } from '../../core/models/project.model';
 import { ClaudeAgentService } from '../../core/services/claude-agent.service';
 import { ImportFlowService } from '../../core/services/import-flow.service';
+import { LocalSkillsService } from '../../core/services/local-skills.service';
 import { UiStateService } from '../../core/services/ui-state.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
 import { DropZoneComponent } from '../../shared/drop-zone/drop-zone.component';
@@ -24,6 +25,7 @@ export class StartPanelComponent {
   readonly store = inject(WorkspaceStore);
   readonly agent = inject(ClaudeAgentService);
   readonly importFlow = inject(ImportFlowService);
+  readonly local = inject(LocalSkillsService);
   private readonly ui = inject(UiStateService);
 
   readonly originLabels: Record<LibraryOrigin, MessageKey> = { code: 'library.code', claude: 'library.claude', workshop: 'library.workshop' };
@@ -34,6 +36,11 @@ export class StartPanelComponent {
 
   stateOf(entry: LibraryEntry): string {
     return entryState(entry);
+  }
+
+  /** Opens a skill straight from the computer's skills folder; edits are written back there. */
+  async openLocal(name: string): Promise<void> {
+    if (await this.local.open(name)) this.ui.showWorkspace('files');
   }
 
   async open(entry: LibraryEntry): Promise<void> {

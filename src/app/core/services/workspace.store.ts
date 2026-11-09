@@ -193,6 +193,42 @@ export class WorkspaceStore {
     return true;
   }
 
+  /** A skill opened from the computer's skills folder: reuses its project if there is one, with the folder's files. */
+  async openLocal(name: string, files: ProjectFile[]): Promise<void> {
+    const existing = this.projects().find((p) => p.localSkill === name);
+    if (existing) {
+      await this.open(existing.id);
+      if (filesHash(this.project().files) !== filesHash(files)) this.replaceFiles(files);
+      return;
+    }
+    this.flushSave();
+    const meta = skillMeta(files.find((f) => /(^|\/)SKILL\.md$/.test(f.path))?.content ?? '');
+    const project: Project = {
+      id: newId(),
+      spec: { ...emptySpec(), kind: files.some((f) => f.path === '.claude-plugin/plugin.json') ? 'plugin' : 'skill', name: meta.name || name, idea: meta.description ?? '' },
+      files: [],
+      map: '',
+      explanation: '',
+      updatedAt: Date.now(),
+      chat: [],
+      localSkill: name,
+    };
+    this.setProject(project);
+    this.change((p) => ({ ...p, files: files.map((f) => ({ ...f })) }));
+    this.selectedPath.set(this.files().find((f) => /(^|\/)SKILL\.md$/.test(f.path))?.path ?? this.files()[0]?.path ?? null);
+  }
+
+  /** From now on the open project is written back to this folder on the computer. */
+  linkLocal(name: string): void {
+    if (this.project().localSkill !== name) this.change((p) => ({ ...p, localSkill: name }));
+  }
+
+  /** Takes another copy of the files as they are (the computer's, when it changed outside the workshop). */
+  replaceFiles(files: ProjectFile[]): void {
+    this.change((p) => ({ ...p, files: files.map((f) => ({ ...f })) }));
+    if (!this.project().files.some((f) => f.path === this.selectedPath())) this.selectedPath.set(this.files()[0]?.path ?? null);
+  }
+
   /** Switches to a tab's project. */
   async openTab(id: string): Promise<void> {
     if (id !== this.project().id) await this.open(id);

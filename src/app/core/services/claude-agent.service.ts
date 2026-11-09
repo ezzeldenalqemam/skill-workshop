@@ -26,6 +26,7 @@ import {
   textLang,
 } from '../models/project.model';
 import { AnnouncerService } from './announcer.service';
+import { LocalSkillsService } from './local-skills.service';
 import { MermaidService } from './mermaid.service';
 import { WorkspaceStore } from './workspace.store';
 
@@ -60,6 +61,7 @@ export class ClaudeAgentService {
   private readonly mermaid = inject(MermaidService);
   private readonly announcer = inject(AnnouncerService);
   private readonly i18n = inject(I18nService);
+  private readonly local = inject(LocalSkillsService);
 
   readonly availability = signal<ClaudeAvailability>('checking');
   readonly toolsSupported = signal(false);
@@ -547,7 +549,32 @@ ${this.context(null, false)}`,
           return 'map updated';
         },
       },
+      ...(this.local.available() ? [this.saveToComputerTool(log)] : []),
     ];
+  }
+
+  /** Writes the project into the user's Claude Code skills folder: the same as asking Claude Code to save it. */
+  private saveToComputerTool(log: (entry: ActivityEntry) => void): SampleTool {
+    return {
+      name: 'save_to_computer',
+      description:
+        "Saves every project file into the user's Claude Code skills folder on their computer (~/.claude/skills/<folder>), and keeps that folder updated with later edits. Call it ONLY when the user asks to save the skill to their computer or Claude Code (for example \"save it\", \"احفظها\", \"احفظها عندي\"). If it reports that the folder already exists, ask the user before calling again with overwrite: true.",
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folder: { type: 'string', description: 'Folder name, kebab-case. Defaults to the skill name.' },
+          overwrite: { type: 'boolean', description: 'Replace an existing folder the project is not linked to yet. Only after the user agreed.' },
+        },
+      },
+      execute: async (input) => {
+        const result = await this.local.saveAs(input['folder'] ? String(input['folder']) : undefined, input['overwrite'] === true);
+        const folder = this.store.project().localSkill;
+        if (result === 'exists') return 'A folder with that name already exists on the computer. Ask the user whether to replace it.';
+        if (result !== 'saved') throw new Error('Saving to the computer failed; the workshop copy is unchanged.');
+        log({ kind: 'local', path: `~/.claude/skills/${folder}` });
+        return `Saved to ~/.claude/skills/${folder}; later edits are written there too.`;
+      },
+    };
   }
 
   // ---- prompt building ----------------------------------------------------

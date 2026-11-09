@@ -6,6 +6,7 @@ import { KIND_LABELS, LibraryOrigin } from '../../core/models/project.model';
 import { AnnouncerService } from '../../core/services/announcer.service';
 import { ClaudeAgentService } from '../../core/services/claude-agent.service';
 import { ImportFlowService } from '../../core/services/import-flow.service';
+import { LocalSkillsService } from '../../core/services/local-skills.service';
 import { PersistenceService } from '../../core/services/persistence.service';
 import { UiStateService } from '../../core/services/ui-state.service';
 import { WorkspaceStore } from '../../core/services/workspace.store';
@@ -28,6 +29,7 @@ export class AppHeaderComponent {
   readonly agent = inject(ClaudeAgentService);
   readonly persistence = inject(PersistenceService);
   readonly i18n = inject(I18nService);
+  readonly local = inject(LocalSkillsService);
   private readonly ui = inject(UiStateService);
   private readonly importFlow = inject(ImportFlowService);
   private readonly announcer = inject(AnnouncerService);
@@ -49,6 +51,7 @@ export class AppHeaderComponent {
     return [{ id: current.id, name, kind: current.spec.kind, updatedAt: 0 }, ...list];
   });
 
+  readonly localLabel = computed(() => `local.${this.local.sync()}` as MessageKey);
   readonly syncLabel = computed(() => `sync.${this.store.syncState()}` as MessageKey);
   /** Something is left before Claude has this exact version. */
   readonly syncPending = computed(() => ['notSaved', 'unsaved', 'new', 'changed'].includes(this.store.syncState()));
@@ -83,6 +86,7 @@ export class AppHeaderComponent {
     const select = event.target as HTMLSelectElement;
     const value = select.value;
     if (value.startsWith('lib:')) await this.store.openLibrary(value.slice(4));
+    else if (value.startsWith('local:')) await this.local.open(value.slice(6));
     else await this.store.open(value);
     // A library choice becomes (or reuses) a project; the list then shows that project as chosen.
     select.value = this.store.project().id;

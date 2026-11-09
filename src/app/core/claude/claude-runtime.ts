@@ -77,6 +77,17 @@ export interface DownloadsCap {
   save(request: { filename: string; data: Blob | string | ArrayBuffer }): Promise<{ status: 'saved' | 'delivered' }>;
 }
 
+/** A tool result from an MCP server reached through the page's `mcp` capability. */
+export interface McpResult {
+  content: unknown[];
+  structuredContent?: unknown;
+  payload?: unknown;
+}
+
+export interface McpCap {
+  callTool(server: string, tool: string, input?: unknown, options?: { cache?: false }): Promise<McpResult>;
+}
+
 interface ClaudeHost {
   use(name: string): Promise<unknown>;
 }
@@ -98,6 +109,7 @@ function use<T>(name: string): Promise<T | null> {
 
 export const claudeRuntime = {
   sample: () => use<SampleFn>('sample'),
+  mcp: () => use<McpCap>('mcp'),
   db: () => use<Db>('db'),
   user: () => use<UserCap>('user'),
   downloads: () => use<DownloadsCap>('downloads'),

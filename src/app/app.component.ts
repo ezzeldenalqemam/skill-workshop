@@ -6,6 +6,7 @@ import { AccessibilityService } from './core/services/accessibility.service';
 import { AnnouncerService } from './core/services/announcer.service';
 import { AppearanceService } from './core/services/appearance.service';
 import { ClaudeAgentService } from './core/services/claude-agent.service';
+import { LocalSkillsService } from './core/services/local-skills.service';
 import { SideTab, UiStateService } from './core/services/ui-state.service';
 import { WorkspaceStore } from './core/services/workspace.store';
 import { ChatPanelComponent } from './features/chat-panel/chat-panel.component';
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
   readonly ui = inject(UiStateService);
   private readonly store = inject(WorkspaceStore);
   private readonly agent = inject(ClaudeAgentService);
+  private readonly local = inject(LocalSkillsService);
   private readonly sideTabButtons = viewChildren<ElementRef<HTMLButtonElement>>('sideTabButton');
 
   readonly sideTabs: { id: SideTab; label: MessageKey; icon: string }[] = [
@@ -57,6 +59,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     void this.store.init();
     void this.agent.init();
+    void this.local.init();
   }
 
   isPhonePressed(id: PhoneButton): boolean {

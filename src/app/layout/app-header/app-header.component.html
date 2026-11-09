@@ -16,6 +16,13 @@
           <option [value]="p.id" [selected]="p.id === store.project().id">{{ p.name }} · {{ kindLabels[p.kind] }}</option>
         }
       </optgroup>
+      @if (local.skills().length) {
+        <optgroup [label]="'header.onComputer' | t">
+          @for (skill of local.skills(); track skill.name) {
+            <option [value]="'local:' + skill.name">{{ skill.name }}</option>
+          }
+        </optgroup>
+      }
       @if (store.library().length) {
         <optgroup [label]="'header.mySkills' | t">
           @for (entry of store.library(); track entry.id) {
@@ -32,6 +39,18 @@
       <app-icon [name]="persistence.mode() === 'account' ? 'cloud' : 'laptop'" />
       <span class="u-visually-hidden">{{ saveLabel() }}</span>
     </span>
+    @if (local.sync() !== 'off') {
+      <span class="l-header__local" role="status" [attr.data-state]="local.sync()" [attr.title]="localLabel() | t">
+        <app-icon name="laptop" />
+        <span class="l-header__local-text">{{ localLabel() | t }}</span>
+      </span>
+      @if (local.sync() === 'differs') {
+        <span class="l-header__confirm" role="group" [attr.aria-label]="'local.differs' | t">
+          <button type="button" class="c-button is-sm" (click)="local.useDiskCopy()">{{ 'local.useDisk' | t }}</button>
+          <button type="button" class="c-button is-sm is-quiet" (click)="local.useWorkshopCopy()">{{ 'local.useWorkshop' | t }}</button>
+        </span>
+      }
+    }
     @if (!store.project().isDraft) {
       @if (confirmingDelete()) {
         <span class="l-header__confirm" role="group" aria-labelledby="header-delete-ask">

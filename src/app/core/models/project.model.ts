@@ -66,7 +66,7 @@ export type MessageStatus = 'thinking' | 'streaming' | 'done' | 'error' | 'stopp
 
 /** One thing Claude did through the page tools; rendered in the current UI language. */
 export interface ActivityEntry {
-  kind: 'write' | 'read' | 'delete' | 'map' | 'mapError' | 'explain' | 'spec';
+  kind: 'write' | 'read' | 'delete' | 'map' | 'mapError' | 'explain' | 'spec' | 'local';
   path?: string;
 }
 
@@ -114,6 +114,8 @@ export interface Project {
   hasGit?: boolean;
   /** The entry in the user's skill library this project opens from and saves back to. */
   libraryId?: string;
+  /** The folder under the computer's Claude Code skills folder this project is written back to. */
+  localSkill?: string;
 }
 
 /** Where a saved skill came from: Claude Code on this computer, the claude.ai account, or this workshop. */
@@ -179,6 +181,7 @@ export function skillMeta(content: string): { name?: string; description?: strin
 export interface ProjectSummary {
   id: string;
   libraryId?: string;
+  localSkill?: string;
   name: string;
   kind: ProjectKind;
   updatedAt: number;

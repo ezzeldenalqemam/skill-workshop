@@ -1,4 +1,25 @@
 <div class="c-start">
+  @if (local.available()) {
+    <section class="c-start__section" aria-labelledby="start-local-title">
+      <div class="c-start__head">
+        <h3 class="c-start__title" id="start-local-title">{{ 'start.localTitle' | t }}</h3>
+        <p class="c-start__lead">{{ (local.skills().length ? 'start.localLead' : 'start.localEmpty') | t }}</p>
+      </div>
+      @if (local.skills().length) {
+        <ul class="c-start__chips">
+          @for (skill of local.skills(); track skill.name) {
+            <li>
+              <button type="button" class="c-button is-sm c-start__chip" (click)="openLocal(skill.name)">
+                <app-icon name="laptop" />
+                <span dir="ltr">{{ skill.name }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
   <section class="c-start__section" aria-labelledby="start-library-title">
     <div class="c-start__head">
       <h3 class="c-start__title" id="start-library-title">{{ 'start.libraryTitle' | t }}</h3>

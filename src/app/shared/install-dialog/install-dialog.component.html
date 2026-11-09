@@ -64,6 +64,20 @@
             </section>
             <section class="c-install__target" aria-labelledby="install-claude-code">
               <h3 class="c-install__target-title" id="install-claude-code">Claude Code</h3>
+              @if (local.available()) {
+                <p class="c-install__why">{{ (store.project().localSkill ? 'install.localLinked' : 'install.localSave') | t: { path: codePath() } }}</p>
+                @if (!store.project().localSkill) {
+                  @if (localExists()) {
+                    <p class="c-install__why">{{ 'install.localExists' | t: { name: folder() } }}</p>
+                    <button type="button" class="c-button is-sm is-danger" [attr.aria-disabled]="busy() ? 'true' : null" (click)="saveLocal(true)">{{ 'install.localReplace' | t }}</button>
+                  } @else {
+                    <button type="button" class="c-button is-sm is-primary" [attr.aria-disabled]="busy() ? 'true' : null" (click)="saveLocal(false)">
+                      <app-icon name="laptop" />
+                      {{ 'install.localButton' | t }}
+                    </button>
+                  }
+                }
+              } @else {
               <p>{{ 'install.claudeCode' | t }}</p>
               <div class="c-install__path">
                 <label class="u-visually-hidden" for="install-path">{{ 'install.pathLabel' | t }}</label>
@@ -73,6 +87,7 @@
                   {{ (copied() ? 'install.copied' : 'install.copy') | t }}
                 </button>
               </div>
+              }
             </section>
           </div>
         </li>
