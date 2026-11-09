@@ -46,7 +46,16 @@ const FILE_RULES = `File conventions:
 - Skill: SKILL.md at the project root with YAML frontmatter \`name\` (kebab-case) and \`description\` (what it does AND when to use it, including the user's own trigger phrases, Arabic ones too). Body: concise imperative instructions, a numbered workflow, rules, short examples. Long reference material goes in references/*.md, helper code in scripts/. Keep SKILL.md focused (under ~300 lines).
 - Plugin: .claude-plugin/plugin.json (name, version, description, author), plus skills/<name>/SKILL.md, commands/<name>.md, agents/<name>.md, hooks/hooks.json as the idea needs, and a README.md.
 
-Idea map: Mermaid \`flowchart TD\`. Quote every label ("..."), keep labels short and ALWAYS in English, whatever language the reply or the files use. Show trigger -> steps -> decisions -> outputs. At most 18 nodes. No style/classDef lines, no HTML, no parentheses or brackets inside labels.`;
+Idea map: a Mermaid \`flowchart TD\` that someone can follow without opening the files. Accuracy first:
+- Draw only what the files actually do, in the order they do it. Every node must be traceable to a file; never invent steps, and never leave out a step the files rely on.
+- Start: ONE stadium node for what sets it off, in the user's own words or the real command, e.g. A(["User asks: review my styles"]) or A(["/px-to-rem"]).
+- Steps: rectangles that start with a verb and name the concrete thing, e.g. B["Read changed .scss files"], C["Run convert.py on each file"]. Name the file, script or tool that does the step when there is one.
+- Decisions: diamonds phrased as a yes/no question with the real condition, e.g. D{"Value under 5px?"}. Label every edge leaving a decision with the answer ("Yes" / "No", or the case).
+- Results: rounded nodes saying what the user gets, e.g. E("Table: file, line, fix").
+- Plugins: one subgraph per component (each skill, command, hook), titled in plain words, linked where one calls another.
+- Labels: ALWAYS in English, whatever language the reply or the files use; 2 to 7 words; specific (numbers, file names, thresholds); never vague words like "Process", "Handle" or "Do task".
+- 6 to 18 nodes; every node connected; one start, at least one result.
+- Syntax: quote every label; no style, classDef or click lines; no HTML; no parentheses or brackets inside the label text.`;
 
 const TOOLS_NOTE = `Change the project ONLY through the tools. Prefer ONE write_files call carrying every file. Call set_map whenever the flow changes, and update_brief when the brief no longer describes what you built.`;
 
@@ -262,7 +271,7 @@ ${flow || !mapStale ? '' : `\nMAP:\n${map}\n`}${explanationStale ? `\nEXPLANATIO
     const controller = this.newController();
     try {
       const { text } = await this.sample!(
-        `${this.rules()}\n\nReturn ONLY the Mermaid flowchart source for this project's idea map inside one \`\`\`mermaid fence, nothing else.\n\n${this.context(null, false)}`,
+        `${this.rules()}\n\nRead every file below first, then return ONLY the Mermaid flowchart source for this project's idea map inside one \`\`\`mermaid fence, nothing else. Follow the idea-map rules exactly.\n\n${this.context(null, true)}`,
         { modelTier: this.tier(), signal: controller.signal, cache: false, ...this.imageOptions() },
       );
       const source = this.extractMermaid(text);

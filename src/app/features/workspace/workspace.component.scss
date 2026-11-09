@@ -82,12 +82,12 @@
   // The tree sits on the physical left in both languages, next to the file it opens.
   &__files {
     display: grid;
-    grid-template-columns: minmax(#{px(180)}, #{px(240)}) minmax(0, 1fr);
+    grid-template-columns: minmax(#{px(200)}, #{px(280)}) minmax(0, 1fr);
     gap: var(--space-3);
     align-items: stretch;
 
     &:dir(rtl) {
-      grid-template-columns: minmax(0, 1fr) minmax(#{px(180)}, #{px(240)});
+      grid-template-columns: minmax(0, 1fr) minmax(#{px(200)}, #{px(280)});
     }
   }
 
@@ -95,6 +95,9 @@
     @include scroll('block');
 
     min-block-size: 0;
+    // Names are cut with an ellipsis, so the tree never scrolls sideways.
+    overflow-x: hidden;
+    overflow-inline: hidden;
 
     &:dir(rtl) {
       order: 2;
@@ -105,7 +108,8 @@
     &__files,
     &__files:dir(rtl) {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto minmax(#{px(360)}, 1fr);
+      // Stacked: the tree keeps a usable height instead of shrinking to a few rows.
+      grid-template-rows: minmax(#{px(180)}, 40%) minmax(#{px(320)}, 1fr);
     }
 
     &__tree:dir(rtl) {

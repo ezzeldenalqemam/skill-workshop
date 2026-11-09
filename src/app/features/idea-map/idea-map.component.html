@@ -229,4 +229,14 @@
         </div>
       }
     </figure>
+
+  <!-- What the shapes mean -->
+  @if (store.project().map) {
+    <ul class="c-map__legend" [attr.aria-label]="'map.legend' | t">
+      <li class="c-map__legend-item"><span class="c-map__shape is-start" aria-hidden="true"></span>{{ 'map.legendStart' | t }}</li>
+      <li class="c-map__legend-item"><span class="c-map__shape is-step" aria-hidden="true"></span>{{ 'map.legendStep' | t }}</li>
+      <li class="c-map__legend-item"><span class="c-map__shape is-decision" aria-hidden="true"></span>{{ 'map.legendDecision' | t }}</li>
+      <li class="c-map__legend-item"><span class="c-map__shape is-result" aria-hidden="true"></span>{{ 'map.legendResult' | t }}</li>
+    </ul>
+  }
 </div>

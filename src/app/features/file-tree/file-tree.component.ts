@@ -36,6 +36,33 @@ export class FileTreeComponent {
   private readonly newToggle = viewChild<ElementRef<HTMLButtonElement>>('newToggle');
   private readonly injector = inject(Injector);
 
+  /** Every folder in the project, to fold or unfold them all at once. */
+  readonly folders = computed(() => {
+    const folders = new Set<string>();
+    for (const f of this.store.files()) {
+      const parts = f.path.split('/');
+      for (let i = 1; i < parts.length; i++) folders.add(parts.slice(0, i).join('/'));
+    }
+    return [...folders];
+  });
+  readonly allCollapsed = computed(() => this.folders().length > 0 && this.folders().every((f) => this.collapsed().has(f)));
+
+  /** Folds every folder, or unfolds them all when they already are. */
+  toggleAll(): void {
+    this.collapsed.set(this.allCollapsed() ? new Set() : new Set(this.folders()));
+  }
+
+  /** What a file is, for its icon colour: a folder, an image, code, configuration or a document. */
+  kindOf(path: string, isFolder: boolean): string {
+    if (isFolder) return 'folder';
+    if (imageMime(path)) return 'image';
+    const ext = /\.([a-z0-9]+)$/i.exec(path)?.[1]?.toLowerCase() ?? '';
+    if (['py', 'js', 'mjs', 'cjs', 'ts', 'sh', 'ps1', 'bat'].includes(ext)) return 'code';
+    if (['json', 'yml', 'yaml', 'toml', 'xml'].includes(ext)) return 'config';
+    if (['md', 'markdown', 'txt'].includes(ext)) return 'doc';
+    return 'other';
+  }
+
   /** Folders first, then files, flattened in display order with collapsed folders' children hidden. */
   readonly rows = computed<TreeNode[]>(() => {
     const files = this.store.files();
@@ -60,7 +87,17 @@ export class FileTreeComponent {
         .split('/')
         .map((seg, i, all) => (i < all.length - 1 || n.isFolder ? `0${seg}` : `1${seg}`))
         .join('/');
-    nodes.sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
+    // Segment by segment: comparing whole paths as one string lets '-' and '/' trade places,
+    // which put .claude/settings.json under .claude-plugin.
+    nodes.sort((a, b) => {
+      const x = sortKey(a).split('/');
+      const y = sortKey(b).split('/');
+      for (let i = 0; i < Math.min(x.length, y.length); i++) {
+        const order = x[i].localeCompare(y[i]);
+        if (order) return order;
+      }
+      return x.length - y.length;
+    });
     const hidden = this.collapsed();
     return nodes.filter((n) => {
       let parent = parentOf(n.path);

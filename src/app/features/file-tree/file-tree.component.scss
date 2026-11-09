@@ -76,9 +76,25 @@
     flex-basis: 100%;
   }
 
+  // One column that never grows past the panel: long names are cut with an ellipsis instead.
   &__list {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1px;
+  }
+
+  // Indent guides: one hairline per ancestor level, under each ancestor's chevron.
+  // The list is always left-to-right (paths read that way), so the guides run from the left too.
+  &__item {
+    min-inline-size: 0;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0 #{px(12)},
+      var(--line) #{px(12)} #{px(13)},
+      transparent #{px(13)} #{px(16)}
+    );
+    background-repeat: no-repeat;
+    background-size: calc(var(--depth, 0) * #{px(16)}) 100%;
   }
 
   // Selected file: tint plus a 2px bar on the inline-start edge, never colour alone.
@@ -88,10 +104,11 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: #{px(6)};
     inline-size: 100%;
-    min-block-size: #{px(30)};
-    padding-inline-start: calc(var(--depth, 0) * #{px(14)} + #{px(6)});
+    min-inline-size: 0;
+    min-block-size: #{px(28)};
+    padding-inline-start: calc(var(--depth, 0) * #{px(16)} + #{px(6)});
     padding-inline-end: var(--space-2);
     border-radius: var(--radius-sm);
     color: var(--text-muted);
@@ -109,7 +126,12 @@
 
     &.is-folder {
       color: var(--text);
-      font-weight: 500;
+      font-weight: 600;
+    }
+
+    // Hidden folders and files (.claude, .github…) step back a little.
+    &.is-dot .c-tree__name {
+      opacity: 0.75;
     }
 
     &.is-selected {
@@ -140,6 +162,32 @@
 
     &.is-open {
       rotate: 90deg;
+    }
+  }
+
+  // The icon's colour says what kind of file it is; the name says the rest.
+  &__icon {
+    flex: none;
+    color: var(--text-faint);
+
+    [data-kind='folder'] > & {
+      color: var(--accent-text);
+    }
+
+    [data-kind='code'] > & {
+      color: var(--success);
+    }
+
+    [data-kind='config'] > & {
+      color: var(--warning);
+    }
+
+    [data-kind='image'] > & {
+      color: var(--accent);
+    }
+
+    [data-kind='doc'] > & {
+      color: var(--text-muted);
     }
   }
 

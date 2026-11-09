@@ -10,6 +10,17 @@
       </span>
     }
     <div class="c-tree__tools">
+      @if (folders().length) {
+        <button
+          type="button"
+          class="c-button is-icon is-sm is-quiet"
+          [attr.aria-label]="(allCollapsed() ? 'tree.expandAll' : 'tree.collapseAll') | t"
+          [title]="(allCollapsed() ? 'tree.expandAll' : 'tree.collapseAll') | t"
+          (click)="toggleAll()"
+        >
+          <app-icon [name]="allCollapsed() ? 'expand' : 'collapse'" />
+        </button>
+      }
       <button
         #newToggle
         type="button"
@@ -56,21 +67,32 @@
       @for (node of rows(); track node.path) {
         <li class="c-tree__item" [style.--depth]="node.depth">
           @if (node.isFolder) {
-            <button type="button" class="c-tree__row is-folder" [attr.aria-expanded]="isOpen(node.path)" (click)="toggleFolder(node.path)">
+            <button
+              type="button"
+              class="c-tree__row is-folder"
+              data-kind="folder"
+              [class.is-dot]="node.name.startsWith('.')"
+              [attr.aria-expanded]="isOpen(node.path)"
+              [title]="node.path"
+              (click)="toggleFolder(node.path)"
+            >
               <span class="c-tree__chevron" [class.is-open]="isOpen(node.path)"><app-icon name="chevron" [flipRtl]="true" /></span>
-              <app-icon [name]="isOpen(node.path) ? 'folder-open' : 'folder'" />
+              <app-icon class="c-tree__icon" [name]="isOpen(node.path) ? 'folder-open' : 'folder'" />
               <span class="c-tree__name">{{ node.name }}</span>
             </button>
           } @else {
             <button
               type="button"
               class="c-tree__row"
+              [attr.data-kind]="kindOf(node.path, false)"
+              [class.is-dot]="node.name.startsWith('.')"
               [class.is-selected]="store.selectedPath() === node.path"
               [attr.aria-current]="store.selectedPath() === node.path ? 'true' : null"
+              [title]="node.path"
               (click)="store.select(node.path)"
             >
               <span class="c-tree__chevron" aria-hidden="true"></span>
-              <app-icon [name]="isImagePath(node.path) ? 'image' : 'file'" />
+              <app-icon class="c-tree__icon" [name]="isImagePath(node.path) ? 'image' : 'file'" />
               <span class="c-tree__name">{{ node.name }}</span>
             </button>
           }

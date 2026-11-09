@@ -185,6 +185,51 @@
     text-align: center;
   }
 
+  // A small key under the map: what each node shape stands for.
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: 0;
+    padding: 0;
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+    list-style: none;
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__shape {
+    display: inline-block;
+    inline-size: #{px(22)};
+    block-size: #{px(12)};
+    border: 1.5px solid var(--accent-text);
+    background: var(--accent-soft);
+
+    &.is-start {
+      border-radius: 999px;
+    }
+
+    &.is-step {
+      border-radius: 1px;
+    }
+
+    &.is-decision {
+      inline-size: #{px(11)};
+      block-size: #{px(11)};
+      margin-inline: #{px(5)};
+      rotate: 45deg;
+    }
+
+    &.is-result {
+      border-radius: #{px(5)};
+    }
+  }
+
   &__cost {
     color: var(--text-faint);
     font-size: var(--fs-xs);
