@@ -82,7 +82,8 @@ This lets the Workshop open the skills in `~/.claude/skills` and save edits stra
 2. Back up the Claude app's settings file, then add one server to its `mcpServers`, leaving everything else as it is:
    - Settings file: `%APPDATA%\Claude\claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS.
    - Entry name: `skill-files` (the page calls it as `host:skill-files`).
-   - `command`: the full path of `node`; `args`: the server's `dist/index.js` under `~/.claude/mcp/skill-files/node_modules/@modelcontextprotocol/server-filesystem/`, then the full path of `~/.claude/skills`. Only that folder is reachable.
+   - First copy `<folder>/scripts/skill-files-server.mjs` into `~/.claude/mcp/skill-files/`. The Claude app sends its own working folders ("roots"), and the filesystem server would use those instead of the skills folder; this wrapper keeps the skills folder fixed.
+   - `command`: the full path of `node`; `args`, in this order: the full path of `~/.claude/mcp/skill-files/skill-files-server.mjs`, the server's `dist/index.js` under `~/.claude/mcp/skill-files/node_modules/@modelcontextprotocol/server-filesystem/`, then the full path of `~/.claude/skills`. Only that folder is reachable.
 3. Tell the user to quit and reopen the Claude app, then open their Workshop link inside the app. Under "On my computer" they will see their skills. The app may ask them to allow each save.
 
 ### 5. Hand it over
