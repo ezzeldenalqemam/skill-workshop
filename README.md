@@ -7,6 +7,34 @@
 - Keep your skills in a private library ("مهاراتي"), open several as tabs, edit them, and install them in claude.ai or Claude Code.
 - English (the default, LTR) and Arabic (RTL), light and dark themes, and accessibility tools. The idea map is always written in English.
 
+## Get your own copy with the plugin (easiest)
+
+The repository is also a Claude Code plugin marketplace. The `skill-workshop` plugin downloads this project, builds it, and publishes your own private copy on claude.ai, ready to use with Claude.
+
+You need Node.js 20 or newer, Git, and Claude Code (the desktop app's Code tab or the CLI) signed in with your claude.ai account.
+
+1. Install the plugin once:
+
+   ```bash
+   claude plugin marketplace add ezzeldenalqemam/skill-workshop
+   ```
+
+   ```bash
+   claude plugin install skill-workshop@skill-workshop
+   ```
+
+2. Start a new Claude Code session, then type:
+
+   ```
+   /skill-workshop:setup
+   ```
+
+   or just ask: "set up Skill Workshop" / «شغّل ورشة المهارات».
+
+Claude checks your tools, downloads the project into `./skill-workshop`, builds it, publishes the page, and gives you its link. Run the same command later to update: the link and your saved work stay.
+
+To try it on your computer without publishing (Claude's buttons then use a mock), use `/skill-workshop:dev`.
+
 ## Run it locally
 
 You need Node.js 20 or newer.
@@ -51,3 +79,5 @@ The `library` rule keeps your saved skills readable and writable by you alone, e
 | `src/app/shared` | Icons, dialogs, popovers, drop zone, accessibility panel |
 | `src/assets/scss` | Styles following the AXIS architecture (ITCSS + BEM) |
 | `scripts/build-artifact.mjs` | Turns the Angular build into an Artifact page |
+| `plugin/` | The `skill-workshop` Claude Code plugin (setup and dev commands) |
+| `.claude-plugin/marketplace.json` | Makes this repository a plugin marketplace |

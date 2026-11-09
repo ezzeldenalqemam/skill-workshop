@@ -1,0 +1,11 @@
+{
+  "name": "skill-workshop",
+  "version": "1.0.0",
+  "description": "Sets up Skill Workshop (ورشة المهارات) for you: downloads it from GitHub, builds it, and publishes your own private copy on claude.ai, ready to use with Claude. Run it again to update.",
+  "author": {
+    "name": "Ezz Elden Mohamed"
+  },
+  "homepage": "https://github.com/ezzeldenalqemam/skill-workshop",
+  "repository": "https://github.com/ezzeldenalqemam/skill-workshop",
+  "keywords": ["skills", "plugins", "claude", "workshop", "arabic"]
+}

@@ -43,3 +43,6 @@ Thumbs.db
 
 # Local scratch folders
 /.tmp-*
+
+# Link to your published copy (written by the skill-workshop plugin)
+/.workshop.json

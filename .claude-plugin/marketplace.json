@@ -1,0 +1,16 @@
+{
+  "name": "skill-workshop",
+  "owner": {
+    "name": "Ezz Elden Mohamed"
+  },
+  "metadata": {
+    "description": "Skill Workshop (ورشة المهارات): build, read and maintain Claude skills in a page on claude.ai."
+  },
+  "plugins": [
+    {
+      "name": "skill-workshop",
+      "source": "./plugin",
+      "description": "Downloads, builds and publishes your own copy of Skill Workshop on claude.ai, ready to use with Claude."
+    }
+  ]
+}
