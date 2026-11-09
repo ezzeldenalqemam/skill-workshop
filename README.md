@@ -1,6 +1,6 @@
 # skill-workshop
 
-**ورشة المهارات / Skill Workshop**: a page for building, reading, and maintaining Claude skills. It runs as a claude.ai Artifact, so it has no backend of its own. Claude calls use the viewer's own account.
+**Skill Workshop** (ورشة المهارات) is a page for building, reading, and maintaining Claude skills. It runs as a claude.ai Artifact, so it has no backend of its own. Claude calls use the viewer's own account.
 
 - Build a skill or a plugin from a short brief, with reference files, images, and links.
 - Open an existing skill (ZIP, folder, or files) and have Claude explain it and draw its idea map.
@@ -34,7 +34,15 @@ claude plugin install skill-workshop@skill-workshop
 
 <div dir="rtl" lang="ar">
 
-3. افتح جلسة جديدة في Claude Code واكتب `/skill-workshop:setup`، أو اطلب: «شغّل ورشة المهارات».
+3. افتح جلسة جديدة في Claude Code واكتب الأمر التالي، أو اطلب: «شغّل ورشة المهارات».
+
+</div>
+
+```
+/skill-workshop:setup
+```
+
+<div dir="rtl" lang="ar">
 
 ينزّل Claude المشروع ويبنيه، ثم ينشر نسخة خاصة بك على claude.ai ويعطيك رابطها. لتحديثها لاحقًا كرّر الأمر نفسه؛ يبقى الرابط وتبقى أعمالك المحفوظة.
 
