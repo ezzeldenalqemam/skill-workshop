@@ -202,6 +202,12 @@ Output: done`,
           return { content: [{ type: 'text', text: files[p] }], structuredContent: { content: files[p] } };
         case 'read_media_file':
           throw { code: 'tool_error', message: 'no media in mock' };
+        case 'write_skill': {
+          if (new URLSearchParams(location.search).has('decline')) throw { code: 'cancelled', message: 'declined' };
+          for (const f of input.files) files[input.folder + '/' + f.path] = f.content;
+          writeFs(files);
+          return { content: [{ type: 'text', text: 'Wrote ' + input.files.length + ' file(s)' }], structuredContent: { written: input.files.map((f) => f.path) } };
+        }
         case 'create_directory':
           return textResult('Successfully created directory ' + p);
         case 'write_file':
@@ -214,9 +220,20 @@ Output: done`,
     },
   };
 
+  const permissions = {
+    state: async (name) => (new URLSearchParams(location.search).has('ask') && !window.__allowed ? 'prompt' : 'granted'),
+    request: async (names) => {
+      window.__allowed = true;
+      record({ kind: 'permissions.request', names });
+      return Object.fromEntries((names || []).map((n) => [n, 'granted']));
+    },
+    manage: async () => {},
+  };
+
   const caps = {
     sample,
     mcp,
+    permissions,
     db,
     user: { id: async () => 'mock-user', isOwner: async () => true },
     downloads: {

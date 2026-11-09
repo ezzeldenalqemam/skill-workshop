@@ -64,6 +64,10 @@
             </section>
             <section class="c-install__target" aria-labelledby="install-claude-code">
               <h3 class="c-install__target-title" id="install-claude-code">Claude Code</h3>
+              @if (local.needsAllow()) {
+                <p class="c-install__why">{{ (local.permission() === 'denied' ? 'allow.denied' : 'allow.lead') | t }}</p>
+                <button type="button" class="c-button is-sm is-primary" (click)="local.allow()">{{ (local.permission() === 'denied' ? 'allow.manage' : 'allow.button') | t }}</button>
+              }
               @if (local.available()) {
                 <p class="c-install__why">{{ (store.project().localSkill ? 'install.localLinked' : 'install.localSave') | t: { path: codePath() } }}</p>
                 @if (!store.project().localSkill) {

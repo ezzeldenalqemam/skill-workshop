@@ -112,7 +112,7 @@ Then ask Claude Code to publish `dist/artifact/index.html` as an Artifact, with 
 
 ```
 sample: { images: true }, db: { rules: [{ path: "library", read: "owner", write: "owner" }] }, downloads: true, user: {},
-mcp: { servers: [{ server: "host:skill-files", tools: ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_file", "create_directory"] }] }
+mcp: { servers: [{ server: "host:skill-files", tools: ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_skill", "write_file", "create_directory"] }] }
 ```
 
 The `library` rule keeps your saved skills readable and writable by you alone, even when you share the page. `images: true` lets Claude see the reference images you add.

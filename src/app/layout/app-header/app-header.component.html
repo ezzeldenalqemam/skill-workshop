@@ -19,7 +19,7 @@
       <span class="u-visually-hidden">{{ saveLabel() }}</span>
     </span>
     @if (local.sync() !== 'off') {
-      <span class="l-header__local" role="status" [attr.data-state]="local.sync()" [attr.title]="localLabel() | t">
+      <span class="l-header__local" role="status" [attr.data-state]="local.sync()" [attr.title]="local.sync() === 'error' && local.failureText() ? local.failureText() : (localLabel() | t)">
         <app-icon name="laptop" />
         <span class="l-header__local-text">{{ localLabel() | t }}</span>
       </span>

@@ -99,6 +99,7 @@ export class InstallDialogComponent {
     this.busy.set(null);
     this.localExists.set(result === 'exists');
     if (result === 'saved') this.say('install.localSaved');
+    else if (result === 'failed' && this.local.failureText()) this.sayText(this.local.failureText());
     else if (result !== 'exists') this.say('install.localFailed');
   }
 
@@ -119,6 +120,11 @@ export class InstallDialogComponent {
     } catch {
       field.select();
     }
+  }
+
+  private sayText(text: string): void {
+    this.note.set(text);
+    this.announcer.announce(text);
   }
 
   private say(key: MessageKey): void {

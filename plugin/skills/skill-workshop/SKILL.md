@@ -18,7 +18,7 @@ Reply to the user in the language they write in. Keep each progress message to o
 - Capabilities to declare on publish (exactly this object):
 
 ```json
-{ "sample": { "images": true }, "db": { "rules": [{ "path": "library", "read": "owner", "write": "owner" }] }, "downloads": true, "user": {}, "mcp": { "servers": [{ "server": "host:skill-files", "tools": ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_file", "create_directory"] }] } }
+{ "sample": { "images": true }, "db": { "rules": [{ "path": "library", "read": "owner", "write": "owner" }] }, "downloads": true, "user": {}, "mcp": { "servers": [{ "server": "host:skill-files", "tools": ["list_allowed_directories", "list_directory", "directory_tree", "read_text_file", "read_media_file", "write_skill", "write_file", "create_directory"] }] } }
 ```
 
 - Where the user's copy is remembered: `<folder>/.workshop.json`, holding `{ "artifactUrl": "<claude.ai artifact link>" }`. Git ignores this file.

@@ -88,6 +88,14 @@ export interface McpCap {
   callTool(server: string, tool: string, input?: unknown, options?: { cache?: false }): Promise<McpResult>;
 }
 
+export type PermissionState = 'granted' | 'prompt' | 'denied' | 'unavailable';
+
+export interface PermissionsCap {
+  state(name: string): Promise<PermissionState>;
+  request(names?: readonly string[]): Promise<Record<string, PermissionState>>;
+  manage(): Promise<void>;
+}
+
 interface ClaudeHost {
   use(name: string): Promise<unknown>;
 }
@@ -110,6 +118,7 @@ function use<T>(name: string): Promise<T | null> {
 export const claudeRuntime = {
   sample: () => use<SampleFn>('sample'),
   mcp: () => use<McpCap>('mcp'),
+  permissions: () => use<PermissionsCap>('permissions'),
   db: () => use<Db>('db'),
   user: () => use<UserCap>('user'),
   downloads: () => use<DownloadsCap>('downloads'),

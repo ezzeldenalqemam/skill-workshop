@@ -37,6 +37,26 @@
     font-size: var(--fs-sm);
   }
 
+  // Asking once for permission to use the computer's skills folder.
+  &__allow {
+    --icon-size: #{px(22)};
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--accent-text);
+    border-radius: var(--radius-md);
+    background: var(--accent-soft);
+  }
+
+  &__allow-text {
+    display: grid;
+    flex: 1 1 #{px(220)};
+    gap: var(--space-1);
+  }
+
   &__chips {
     display: flex;
     flex-wrap: wrap;

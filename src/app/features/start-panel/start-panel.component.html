@@ -1,4 +1,15 @@
 <div class="c-start">
+  @if (local.needsAllow()) {
+    <section class="c-start__allow" aria-labelledby="start-allow-title">
+      <app-icon name="laptop" />
+      <div class="c-start__allow-text">
+        <h3 class="c-start__title" id="start-allow-title">{{ 'allow.title' | t }}</h3>
+        <p class="c-start__lead">{{ (local.permission() === 'denied' ? 'allow.denied' : 'allow.lead') | t }}</p>
+      </div>
+      <button type="button" class="c-button is-primary" (click)="local.allow()">{{ (local.permission() === 'denied' ? 'allow.manage' : 'allow.button') | t }}</button>
+    </section>
+  }
+
   @if (local.available()) {
     <section class="c-start__section" aria-labelledby="start-local-title">
       <div class="c-start__head">

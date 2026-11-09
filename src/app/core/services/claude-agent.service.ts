@@ -570,7 +570,7 @@ ${this.context(null, false)}`,
         const result = await this.local.saveAs(input['folder'] ? String(input['folder']) : undefined, input['overwrite'] === true);
         const folder = this.store.project().localSkill;
         if (result === 'exists') return 'A folder with that name already exists on the computer. Ask the user whether to replace it.';
-        if (result !== 'saved') throw new Error('Saving to the computer failed; the workshop copy is unchanged.');
+        if (result !== 'saved') throw new Error(`Saving to the computer stopped: ${this.local.failureText() || 'unknown error'}. Tell the user exactly this.`);
         log({ kind: 'local', path: `~/.claude/skills/${folder}` });
         return `Saved to ~/.claude/skills/${folder}; later edits are written there too.`;
       },
