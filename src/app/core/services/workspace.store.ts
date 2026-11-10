@@ -9,6 +9,7 @@ import {
   filesHash,
   isGitPath,
   LibraryEntry,
+  MapPlan,
   newId,
   normalizePath,
   Project,
@@ -411,6 +412,11 @@ export class WorkspaceStore {
   /** `byHand` marks the map as ahead of the files until Claude applies it. The map is always English, so it never touches the explanation's language. */
   setMap(map: string, byHand = false): void {
     this.change((p) => ({ ...p, map, mapEdited: byHand }));
+  }
+
+  /** A plugin's map part by part (see MapPlan). */
+  setMapPlan(plan: MapPlan): void {
+    this.change((p) => ({ ...p, mapPlan: plan }));
   }
 
   /** Adds a reference link to references/links.md (created on first use). */

@@ -185,6 +185,28 @@
     text-align: center;
   }
 
+  // Part by part, or the full map.
+  &__views {
+    display: inline-flex;
+    gap: #{px(2)};
+    padding: #{px(2)};
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+
+  // The full map keeps the panel's flex layout when shown.
+  &__full {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: inherit;
+    min-block-size: 0;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
   // A small key under the map: what each node shape stands for.
   &__legend {
     display: flex;

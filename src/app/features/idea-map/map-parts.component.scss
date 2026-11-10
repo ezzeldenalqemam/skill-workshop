@@ -1,0 +1,153 @@
+@use '../../../assets/scss/tools' as *;
+
+:host {
+  display: block;
+  flex: 1;
+  min-block-size: 0;
+}
+
+.c-parts {
+  @include scroll('block');
+
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  block-size: 100%;
+  padding-block-end: var(--space-2);
+
+  &__title {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+  }
+
+  // The order: numbered boxes joined by arrows, top to bottom.
+  &__order {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  // Top to bottom, like a checklist: an arrow above each part points down from the one before.
+  &__steps {
+    display: grid;
+    justify-items: start;
+    gap: #{px(22)};
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__step {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    padding-inline: var(--space-3);
+    border: 1.5px solid var(--accent-text);
+    border-radius: var(--radius-md);
+    background: var(--accent-soft);
+
+    & + &::before {
+      content: '';
+      position: absolute;
+      inset-block-start: #{px(-20)};
+      inset-inline-start: #{px(22)};
+      inline-size: 0;
+      block-size: #{px(16)};
+      border-inline-start: 1.5px solid var(--text-muted);
+    }
+
+    & + &::after {
+      content: '';
+      position: absolute;
+      inset-block-start: #{px(-6)};
+      inset-inline-start: #{px(18)};
+      border-block-start: #{px(5)} solid var(--text-muted);
+      border-inline: #{px(4.5)} solid transparent;
+    }
+  }
+
+  &__num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: #{px(22)};
+    block-size: #{px(22)};
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  &__step-name,
+  &__name {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+  }
+
+  &__kind {
+    font-size: var(--fs-xs);
+  }
+
+  &__note {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  // The parts, side by side when there is room.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(#{px(300)}, 1fr));
+    gap: var(--space-3);
+  }
+
+  &__card {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__name {
+    overflow-wrap: anywhere;
+  }
+
+  &__desc {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-body);
+  }
+
+  &__diagram {
+    @include scroll('both');
+
+    display: grid;
+    justify-items: center;
+    max-block-size: #{px(520)};
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+
+    &:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+  }
+}

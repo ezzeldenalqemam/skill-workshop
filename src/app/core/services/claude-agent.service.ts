@@ -16,6 +16,8 @@ import {
   BriefItem,
   buildKind,
   ClarifyingQuestion,
+  componentsOf,
+  MapComponent,
   fileToBlob,
   isImageFile,
   KIND_LABELS,
@@ -266,6 +268,8 @@ ${flow || !mapStale ? '' : `\nMAP:\n${map}\n`}${explanationStale ? `\nEXPLANATIO
 
   /** Asks for the map only — cheap, no file changes. */
   async drawMap(): Promise<void> {
+    const parts = componentsOf(this.store.project().files);
+    if (parts.length > 1) return this.drawParts(parts);
     if (!this.begin()) return;
     const replyId = this.store.addMessage({ role: 'assistant', text: '', status: 'thinking', activity: [] });
     const controller = this.newController();
@@ -280,6 +284,56 @@ ${flow || !mapStale ? '' : `\nMAP:\n${map}\n`}${explanationStale ? `\nEXPLANATIO
       this.store.setMap(source);
       this.store.patchMessage(replyId, { text: this.i18n.t('agent.mapDone'), textKey: 'agent.mapDone', status: 'done', activity: [{ kind: 'map' }] });
       this.announcer.announce(this.i18n.t('agent.mapAnnounce'));
+    } catch (error) {
+      this.fail(replyId, error);
+    } finally {
+      this.end();
+    }
+  }
+
+  /**
+   * A plugin with several skills, commands, agents or hooks: one small flow per part, what each
+   * does, and the order the user should use them in (or that any order works).
+   */
+  private async drawParts(parts: { name: string; kind: MapComponent['kind']; path: string }[]): Promise<void> {
+    if (!this.begin()) return;
+    const replyId = this.store.addMessage({ role: 'assistant', text: '', status: 'thinking', activity: [] });
+    const controller = this.newController();
+    try {
+      const data = await this.sample!.json<{ components?: Partial<MapComponent>[]; order?: unknown[]; orderNote?: unknown }>(
+        `${this.rules()}
+
+This project has several parts. Read every file below first. Then draw ONE small idea map for EACH part listed in PARTS, describe what each part does, and give the order the user should use them in.
+Rules for each part's map: follow the idea-map rules, but draw only that part, with no subgraphs, 4 to 12 nodes.
+Order: list the part names in the sequence the user should run them, only when the files show a real sequence (one part's output feeds the next, or the docs say so). If the parts are independent, return an empty list.
+Reply with ONLY one JSON object:
+{"parts": [{"name": "<exactly as in PARTS>", "kind": "skill|command|agent|hook", "description": "<one or two plain English sentences: what it does and when to use it>", "map": "<Mermaid flowchart TD source for this part alone>"}], "sequence": ["<part names in order, or empty>"], "sequenceNote": "<one English sentence: why this order, or that any order works>"}
+
+PARTS: ${JSON.stringify(parts)}
+
+${this.context(null, true)}`,
+        { modelTier: this.tier(), signal: controller.signal, cache: false, ...this.imageOptions() },
+      );
+      const raw = data as unknown as { parts?: Partial<MapComponent>[]; sequence?: unknown[]; sequenceNote?: unknown };
+      const components: MapComponent[] = [];
+      for (const part of raw.parts ?? []) {
+        const known = parts.find((p) => p.name === part.name);
+        if (!known) continue;
+        let map = this.extractMermaid(String(part.map ?? ''));
+        try {
+          await this.mermaid.validate(map);
+        } catch {
+          map = '';
+        }
+        components.push({ name: known.name, kind: known.kind, description: String(part.description ?? '').trim(), map });
+      }
+      if (!components.length) throw new Error('No part maps came back.');
+      const names = new Set(components.map((c) => c.name));
+      const order = (raw.sequence ?? []).map(String).filter((n) => names.has(n));
+      this.store.checkpoint(this.i18n.t('store.mapDraw'));
+      this.store.setMapPlan({ order, orderNote: String(raw.sequenceNote ?? '').trim(), components });
+      this.store.patchMessage(replyId, { text: this.i18n.t('agent.partsDone', { n: components.length }), textKey: 'agent.partsDone', textParams: { n: components.length }, status: 'done', activity: [{ kind: 'map' }] });
+      this.announcer.announce(this.i18n.t('agent.partsDone', { n: components.length }));
     } catch (error) {
       this.fail(replyId, error);
     } finally {

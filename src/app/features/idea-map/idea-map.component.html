@@ -4,8 +4,14 @@
     <div class="c-map__tools">
       <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.drawMap()">
         <app-icon name="map" />
-        {{ (store.project().map ? 'map.redraw' : 'map.draw') | t }}
+        {{ (store.project().map || store.project().mapPlan ? 'map.redraw' : 'map.draw') | t }}
       </button>
+      @if (store.project().mapPlan) {
+        <div class="c-map__views" role="group" [attr.aria-label]="'map.views' | t">
+          <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="view() === 'parts'" (click)="view.set('parts')">{{ 'map.partsView' | t }}</button>
+          <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="view() === 'full'" (click)="view.set('full')">{{ 'map.fullView' | t }}</button>
+        </div>
+      }
       @if (store.project().map) {
         <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="editMode()" (click)="toggleEdit()">
           <app-icon name="edit" />
@@ -15,7 +21,7 @@
           <app-icon name="code" />
           {{ (codeOpen() ? 'map.hideCode' : 'map.showCode') | t }}
         </button>
-      } @else {
+      } @else if (!store.project().mapPlan) {
         <button type="button" class="c-button is-sm is-quiet" (click)="startMap()">
           <app-icon name="plus" />
           {{ 'map.start' | t }}
@@ -101,6 +107,21 @@
     </p>
   }
 
+  @if (parts().length > 1 && !store.project().mapPlan && !agent.translating()) {
+    <div class="c-map__offer" role="group" aria-labelledby="map-parts-offer">
+      <p class="c-map__offer-text" id="map-parts-offer">{{ 'map.partsOffer' | t: { n: parts().length } }}</p>
+      <button type="button" class="c-button is-sm" [disabled]="!agent.canRun()" (click)="agent.drawMap()">
+        <app-icon name="map" />
+        {{ 'map.partsDraw' | t }}
+      </button>
+    </div>
+  }
+
+  @if (showParts()) {
+    <app-map-parts [plan]="store.project().mapPlan!" />
+  }
+
+  <div class="c-map__full" [hidden]="showParts()">
   <p class="c-map__hint" id="map-view-hint">
     {{ 'map.viewHint' | t }}
     @if (editMode()) {
@@ -229,9 +250,10 @@
         </div>
       }
     </figure>
+  </div>
 
   <!-- What the shapes mean -->
-  @if (store.project().map) {
+  @if (store.project().map || store.project().mapPlan) {
     <ul class="c-map__legend" [attr.aria-label]="'map.legend' | t">
       <li class="c-map__legend-item"><span class="c-map__shape is-start" aria-hidden="true"></span>{{ 'map.legendStart' | t }}</li>
       <li class="c-map__legend-item"><span class="c-map__shape is-step" aria-hidden="true"></span>{{ 'map.legendStep' | t }}</li>

@@ -116,6 +116,43 @@ export interface Project {
   libraryId?: string;
   /** The folder under the computer's Claude Code skills folder this project is written back to. */
   localSkill?: string;
+  /** A plugin's map part by part: the order to use them in, and one small flow per part. */
+  mapPlan?: MapPlan;
+}
+
+/** One skill, command, agent or hook of a plugin, with what it does and its own flow. */
+export interface MapComponent {
+  name: string;
+  kind: 'skill' | 'command' | 'agent' | 'hook';
+  /** One or two plain English sentences: what it does and when to use it. */
+  description: string;
+  /** Mermaid flowchart of this part alone. */
+  map: string;
+}
+
+export interface MapPlan {
+  /** Part names in the order the user should use them; empty when the order does not matter. */
+  order: string[];
+  /** One English sentence on why this order, or that any order works. */
+  orderNote: string;
+  components: MapComponent[];
+}
+
+/** The parts a plugin is made of, found from its files: skills, commands, agents and hooks. */
+export function componentsOf(files: ProjectFile[]): { name: string; kind: MapComponent['kind']; path: string }[] {
+  const found = new Map<string, { name: string; kind: MapComponent['kind']; path: string }>();
+  const add = (kind: MapComponent['kind'], name: string, path: string) => {
+    if (!found.has(`${kind}:${name}`)) found.set(`${kind}:${name}`, { kind, name, path });
+  };
+  for (const { path } of files) {
+    let m: RegExpExecArray | null;
+    if ((m = /(?:^|\/)skills\/([^/]+)\/SKILL\.md$/i.exec(path))) add('skill', m[1], path);
+    else if (/^SKILL\.md$/i.test(path)) add('skill', 'SKILL.md', path);
+    else if ((m = /(?:^|\/)commands\/(.+)\.md$/i.exec(path))) add('command', m[1].replace(/\//g, ':'), path);
+    else if ((m = /(?:^|\/)agents\/([^/]+)\.md$/i.exec(path))) add('agent', m[1], path);
+    else if (/(?:^|\/)hooks\/hooks\.json$/i.test(path)) add('hook', 'hooks', path);
+  }
+  return [...found.values()];
 }
 
 /** Where a saved skill came from: Claude Code on this computer, the claude.ai account, or this workshop. */

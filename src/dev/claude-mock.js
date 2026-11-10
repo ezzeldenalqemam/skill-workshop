@@ -60,6 +60,21 @@
     const prompt = textOf(input);
     record({ kind: 'json', images: opts.images ? opts.images.length : 0 });
     await wait(400, opts.signal);
+    // A plugin's parts: one small flow per part, and an order.
+    const partsLine = /^PARTS: (.*)$/m.exec(prompt);
+    if (partsLine) {
+      const parts = JSON.parse(partsLine[1]);
+      return {
+        parts: parts.map((p, i) => ({
+          name: p.name,
+          kind: p.kind,
+          description: 'The ' + p.kind + ' ' + p.name + ' does step ' + (i + 1) + ' of the job.',
+          map: 'flowchart TD\n  A(["Run ' + p.name + '"]) --> B["Read the files"]\n  B --> C{"Anything to fix?"}\n  C -->|"Yes"| D("List of fixes")\n  C -->|"No"| E("All good")',
+        })),
+        sequence: parts.map((p) => p.name),
+        sequenceNote: 'Run them in this order: each part uses what the previous one produced.',
+      };
+    }
     // Brief suggestions: each requested field gets a value built from the idea.
     const suggest = /^SUGGEST: (.*)$/m.exec(prompt);
     if (suggest) {

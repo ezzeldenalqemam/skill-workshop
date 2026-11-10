@@ -23,6 +23,8 @@ import { WorkspaceStore } from '../../core/services/workspace.store';
 import { UiStateService } from '../../core/services/ui-state.service';
 import { focusAfterRender } from '../../shared/focus/focus-after-render';
 import { IconComponent } from '../../shared/icon/icon.component';
+import { componentsOf } from '../../core/models/project.model';
+import { MapPartsComponent } from './map-parts.component';
 import { Flow, nextNodeId, parseFlow, printFlow } from './flow-model';
 
 const MIN_SCALE = 0.2;
@@ -40,7 +42,7 @@ interface Overlay {
 
 @Component({
   selector: 'app-idea-map',
-  imports: [IconComponent, TPipe],
+  imports: [IconComponent, MapPartsComponent, TPipe],
   templateUrl: './idea-map.component.html',
   styleUrl: './idea-map.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +62,11 @@ export class IdeaMapComponent {
   private readonly stage = viewChild<ElementRef<HTMLElement>>('stage');
 
   readonly dir = this.i18n.dir;
+  /** The plugin's parts (skills, commands, agents, hooks) found in its files. */
+  readonly parts = computed(() => componentsOf(this.store.project().files));
+  /** Part by part, or the whole flow in one map. */
+  readonly view = signal<'parts' | 'full'>('parts');
+  readonly showParts = computed(() => !!this.store.project().mapPlan && this.view() === 'parts');
   readonly svg = signal<SafeHtml | null>(null);
   readonly error = signal<string | null>(null);
   readonly loading = signal(false);

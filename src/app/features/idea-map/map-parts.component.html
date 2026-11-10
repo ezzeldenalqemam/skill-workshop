@@ -1,0 +1,45 @@
+<div class="c-parts">
+  <!-- The order to use the parts in -->
+  <section class="c-parts__order" aria-labelledby="parts-order-title">
+    <h3 class="c-parts__title" id="parts-order-title">{{ 'map.order' | t }}</h3>
+    @if (ordered().length > 1) {
+      <ol class="c-parts__steps">
+        @for (part of ordered(); track part.name; let i = $index) {
+          <li class="c-parts__step">
+            <span class="c-parts__num" aria-hidden="true">{{ i + 1 }}</span>
+            <span class="c-parts__step-name" dir="ltr">{{ part.name }}</span>
+            <span class="c-chip c-parts__kind">{{ kindNames[part.kind] }}</span>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="c-parts__note">{{ 'map.orderAny' | t }}</p>
+    }
+    @if (plan().orderNote) {
+      <p class="c-parts__note" dir="ltr" lang="en">{{ plan().orderNote }}</p>
+    }
+  </section>
+
+  <!-- One card per part -->
+  <div class="c-parts__grid">
+    @for (part of plan().components; track part.name; let i = $index) {
+      <article class="c-parts__card" [attr.aria-labelledby]="'part-name-' + i">
+        <header class="c-parts__head">
+          @if (step(part.name); as n) {
+            <span class="c-parts__num" [attr.aria-label]="'map.stepNumber' | t: { n: n }">{{ n }}</span>
+          }
+          <h3 class="c-parts__name" [id]="'part-name-' + i" dir="ltr">{{ part.name }}</h3>
+          <span class="c-chip c-parts__kind">{{ kindNames[part.kind] }}</span>
+        </header>
+        <p class="c-parts__desc" dir="ltr" lang="en">{{ part.description }}</p>
+        @if (svg(part.name); as drawing) {
+          <div class="c-parts__diagram" role="region" tabindex="0" [attr.aria-label]="'map.partDiagram' | t: { name: part.name }" [innerHTML]="drawing"></div>
+        } @else if (failed(part.name)) {
+          <p class="c-parts__note">{{ 'map.partError' | t }}</p>
+        } @else {
+          <p class="c-parts__note">{{ 'map.loading' | t }}</p>
+        }
+      </article>
+    }
+  </div>
+</div>
