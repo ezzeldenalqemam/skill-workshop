@@ -67,6 +67,26 @@ export class IdeaMapComponent {
   /** Part by part, or the whole flow in one map. */
   readonly view = signal<'parts' | 'full'>('parts');
   readonly showParts = computed(() => !!this.store.project().mapPlan && this.view() === 'parts');
+
+  /** The parts canvas finished drawing: give its flows their natural size, then frame it once. */
+  onPartsDrawn(): void {
+    afterNextRender(
+      () => {
+        const stage = this.stage()?.nativeElement;
+        if (!stage) return;
+        for (const svg of stage.querySelectorAll<SVGSVGElement>('svg')) {
+          const { width, height } = this.svgSize(svg);
+          if (!width) continue;
+          svg.setAttribute('width', String(width));
+          svg.setAttribute('height', String(height));
+          svg.style.maxWidth = 'none';
+        }
+        this.touched = false;
+        this.fit();
+      },
+      { injector: this.injector },
+    );
+  }
   readonly svg = signal<SafeHtml | null>(null);
   readonly error = signal<string | null>(null);
   readonly loading = signal(false);
@@ -120,6 +140,15 @@ export class IdeaMapComponent {
       this.appearance.mode();
       this.appearance.accent();
       void this.render(source);
+    });
+    // Switching between the parts and the full map frames what is now shown.
+    effect(() => {
+      this.showParts();
+      untracked(() => {
+        if (this.editMode()) this.editMode.set(false);
+        this.touched = false;
+        afterNextRender(() => this.fit(), { injector: this.injector });
+      });
     });
     // A selection that no longer exists (deleted, other project) is dropped.
     effect(() => {
@@ -425,9 +454,9 @@ export class IdeaMapComponent {
 
   private fit(): void {
     const view = this.viewport()?.nativeElement;
-    const svg = this.stage()?.nativeElement.querySelector('svg');
-    if (!view || !svg || !view.clientWidth || !view.clientHeight) return;
-    const { width, height } = this.svgSize(svg);
+    const stage = this.stage()?.nativeElement;
+    if (!view || !stage || !view.clientWidth || !view.clientHeight) return;
+    const { width, height } = this.contentSize(stage);
     if (!width || !height) return;
     const pad = 32;
     const scale = this.clamp(Math.min((view.clientWidth - pad * 2) / width, (view.clientHeight - pad * 2) / height, 1));
@@ -453,6 +482,16 @@ export class IdeaMapComponent {
 
   private clamp(scale: number): number {
     return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
+  }
+
+  /** What the frame shows: the full map's SVG, or the whole parts canvas. */
+  private contentSize(stage: HTMLElement): { width: number; height: number } {
+    if (this.showParts()) {
+      const canvas = stage.firstElementChild as HTMLElement | null;
+      return { width: canvas?.offsetWidth ?? 0, height: canvas?.offsetHeight ?? 0 };
+    }
+    const svg = stage.querySelector('svg');
+    return svg ? this.svgSize(svg) : { width: 0, height: 0 };
   }
 
   private svgSize(svg: SVGSVGElement): { width: number; height: number } {

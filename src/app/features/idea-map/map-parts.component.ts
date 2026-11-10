@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TPipe } from '../../core/i18n/t.pipe';
 import { MapComponent, MapPlan } from '../../core/models/project.model';
@@ -11,6 +11,7 @@ const KIND_NAMES: Record<MapComponent['kind'], string> = { skill: 'Skill', comma
 /**
  * A plugin's map, one part at a time: the order to use the parts in (when there is one),
  * then a card per skill, command, agent or hook with what it does and its own small flow.
+ * It is laid out as one wide canvas inside the map's frame, which pans and zooms it.
  */
 @Component({
   selector: 'app-map-parts',
@@ -25,6 +26,8 @@ export class MapPartsComponent {
   private readonly appearance = inject(AppearanceService);
 
   readonly plan = input.required<MapPlan>();
+  /** Every flow is drawn (or failed): the frame around it can measure and fit it now. */
+  readonly drawn = output<void>();
   /** Rendered SVG per part name, or 'error' when that part's flow could not be drawn. */
   readonly svgs = signal<Record<string, SafeHtml | 'error'>>({});
   readonly kindNames = KIND_NAMES;
@@ -70,5 +73,6 @@ export class MapPartsComponent {
       }
     }
     this.svgs.set(out);
+    this.drawn.emit();
   }
 }

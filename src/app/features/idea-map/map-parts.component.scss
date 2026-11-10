@@ -2,18 +2,15 @@
 
 :host {
   display: block;
-  flex: 1;
-  min-block-size: 0;
+  inline-size: max-content;
 }
 
+// One wide canvas: the order first, then the parts side by side. The map's frame pans and zooms it.
 .c-parts {
-  @include scroll('block');
-
-  display: grid;
-  align-content: start;
-  gap: var(--space-4);
-  block-size: 100%;
-  padding-block-end: var(--space-2);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  padding: var(--space-4);
 
   &__title {
     font-size: var(--fs-sm);
@@ -23,7 +20,9 @@
   // The order: numbered boxes joined by arrows, top to bottom.
   &__order {
     display: grid;
+    flex: none;
     gap: var(--space-2);
+    inline-size: #{px(260)};
     padding: var(--space-3);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -100,18 +99,19 @@
     font-size: var(--fs-sm);
   }
 
-  // The parts, side by side when there is room.
+  // The parts, side by side.
   &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(#{px(300)}, 1fr));
-    gap: var(--space-3);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-5);
   }
 
   &__card {
     display: grid;
-    grid-template-rows: auto auto 1fr;
+    flex: none;
     gap: var(--space-2);
-    min-inline-size: 0;
+    min-inline-size: #{px(280)};
+    max-inline-size: #{px(640)};
     padding: var(--space-3);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
@@ -136,18 +136,10 @@
   }
 
   &__diagram {
-    @include scroll('both');
-
     display: grid;
     justify-items: center;
-    max-block-size: #{px(520)};
     padding: var(--space-2);
     border-radius: var(--radius-sm);
     background: var(--surface-2);
-
-    &:focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
   }
 }

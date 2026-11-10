@@ -12,7 +12,7 @@
           <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="view() === 'full'" (click)="view.set('full')">{{ 'map.fullView' | t }}</button>
         </div>
       }
-      @if (store.project().map) {
+      @if (store.project().map && !showParts()) {
         <button type="button" class="c-button is-sm is-quiet" [attr.aria-pressed]="editMode()" (click)="toggleEdit()">
           <app-icon name="edit" />
           {{ (editMode() ? 'map.doneEditing' : 'map.edit') | t }}
@@ -117,11 +117,7 @@
     </div>
   }
 
-  @if (showParts()) {
-    <app-map-parts [plan]="store.project().mapPlan!" />
-  }
-
-  <div class="c-map__full" [hidden]="showParts()">
+  <div class="c-map__full">
   <p class="c-map__hint" id="map-view-hint">
     {{ 'map.viewHint' | t }}
     @if (editMode()) {
@@ -143,7 +139,11 @@
       (pointercancel)="onPointerUp($event)"
       (keydown)="onKeydown($event)"
     >
-      @if (svg()) {
+      @if (showParts()) {
+        <div #stage class="c-map__stage" [style.transform]="transform()">
+          <app-map-parts class="c-map__parts" [attr.dir]="dir()" [plan]="store.project().mapPlan!" (drawn)="onPartsDrawn()" />
+        </div>
+      } @else if (svg()) {
         <div #stage class="c-map__stage" [style.transform]="transform()">
           <div class="c-map__svg" role="img" [attr.aria-label]="'map.label' | t: { name: store.spec().name || store.spec().idea }" [innerHTML]="svg()"></div>
         </div>

@@ -33,7 +33,7 @@
         </header>
         <p class="c-parts__desc" dir="ltr" lang="en">{{ part.description }}</p>
         @if (svg(part.name); as drawing) {
-          <div class="c-parts__diagram" role="region" tabindex="0" [attr.aria-label]="'map.partDiagram' | t: { name: part.name }" [innerHTML]="drawing"></div>
+          <div class="c-parts__diagram" role="img" [attr.aria-label]="'map.partDiagram' | t: { name: part.name }" [innerHTML]="drawing"></div>
         } @else if (failed(part.name)) {
           <p class="c-parts__note">{{ 'map.partError' | t }}</p>
         } @else {
